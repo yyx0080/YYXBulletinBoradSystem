@@ -14,5 +14,15 @@ def login(req):
     #否则为post请求，获取用户提交的数据
     else:
         print(req.POST)
-        return HttpResponse("登陆成功")
+        username = req.POST.get("user")
+        pwd = req.POST.get("pwd")
+        #这里判断条件用函数解耦合出来
+        if username == "root":
+            return HttpResponse("登陆成功") #渲染新的成功页面
+        
+        return HttpResponse(req,"login.html",{"error_msg" : "error_username" })
     
+
+#测试bootstrap是否配置好的函数
+def TestBootStrap(request):
+    return render(request,"bootstraptest.html")

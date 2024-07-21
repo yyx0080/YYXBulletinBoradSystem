@@ -1,5 +1,5 @@
 #这是一个测试数据库的文件，仅仅作为测试使用
-# 导入pymysql
+#这个py的作用是为了向数据库中，插入数据，作为测试使用
 import pymysql
 
 # 提供相关参数建立数据库连接
@@ -7,7 +7,7 @@ conn = pymysql.connect(
                         host='localhost',
                         port=3306,
                         user='root',
-                        password='123456789',
+                        password='yyx18259338897',
                         autocommit=True,
                         charset='utf8mb4',
                         cursorclass=pymysql.cursors.DictCursor)
@@ -18,7 +18,7 @@ cursor = conn.cursor()
 #这里创建完数据库后，要将这一段注释掉，改为下面一段
 #cursor.execute("create database test")
 #连接数据库
-conn.select_db("test")
+conn.select_db("db")
 #创建用户表
 #同样的，创建完就注释掉
 
@@ -34,8 +34,8 @@ conn.select_db("test")
 # )
 
 # 增 
-cursor.execute("insert into useryyxtest (username, password) values ('zhangsan', '123')")  # 添加用户1
-cursor.execute("insert into useryyxtest (username, password) values ('lisi', '1234');")  # 添加用户2
+cursor.execute("insert into user (username, password, point) values ('zhangsan', '123',20)")  # 添加用户1
+cursor.execute("insert into user (username, password, point) values ('lisi', '1234',20);")  # 添加用户2
 
 # 删
 #cursor.execute("delete from user where id = 1")  # 删除id为1的用户
@@ -47,17 +47,7 @@ cursor.execute("insert into useryyxtest (username, password) values ('lisi', '12
 conn.commit()
 
 
-# 查！
-cursor.execute("select * from useryyxtest")
-#利用cursor.fetchall拿到结果
-res:tuple = cursor.fetchall()
-
-print(res)
-for it in res:
-    print(it)
-
-#最后关闭连接
 cursor.close()
 conn.close()
 
-print("hello world")
+print("over")
