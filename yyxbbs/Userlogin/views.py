@@ -1,5 +1,5 @@
 from django.shortcuts import render,HttpResponse
-
+from Userlogin import ormoperator
 # Create your views here.
 # 写功能函数
 def index(request):
@@ -13,16 +13,16 @@ def login(req):
         return render(req,"login.html")
     #否则为post请求，获取用户提交的数据
     else:
-        print(req.POST)
         username = req.POST.get("user")
         pwd = req.POST.get("pwd")
-        #这里判断条件用函数解耦合出来
-        if username == "root":
-            return HttpResponse("登陆成功") #渲染新的成功页面
-        
-        return HttpResponse(req,"login.html",{"error_msg" : "error_username" })
+        #这里调用ormoperator.UserInfoCorret函数进行登录验证
+        if ormoperator.UserInfoCorret(username,pwd):
+            return HttpResponse("登录成功") #渲染新的成功页面
+        else:
+            return HttpResponse("用户名或者密码错误")
     
 
-#测试bootstrap是否配置好的函数
-def TestBootStrap(request):
-    return render(request,"bootstraptest.html")
+#这个函数仅作测试使用
+def addtest(request):
+    ormoperator.TestAddUserInfo()
+    return HttpResponse("测试数据添加成功")

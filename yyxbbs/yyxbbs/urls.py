@@ -22,10 +22,10 @@ from Userlogin import views as UserloginViews
 urlpatterns = [
     # url -> admin.site.urls这个函数
     path('admin/', admin.site.urls),
-
     # 这里要注意，最后一个结尾不能有“,”否则最后一个会找不到
     path('index/', UserloginViews.index),
-    path('login/',UserloginViews.login)
+    path('login/',UserloginViews.login),
+    path('addtest/',UserloginViews.addtest)
 ]
 
 
