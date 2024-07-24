@@ -13,8 +13,10 @@ def login(req):
         return render(req,"login.html")
     #否则为post请求，获取用户提交的数据
     else:
-        username = req.POST.get("user")
-        pwd = req.POST.get("pwd")
+        username = req.POST.get("username")
+        pwd = req.POST.get("password")
+        print(req.POST)
+        print(username,pwd)
         #这里调用ormoperator.UserInfoCorret函数进行登录验证
         if ormoperator.UserInfoCorret(username,pwd):
             return HttpResponse("登录成功") #渲染新的成功页面

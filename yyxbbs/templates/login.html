@@ -4,18 +4,70 @@
 <head>
     <meta charset="UTF-8">
     <title>title</title>
+    <!-- 开发版本 -->
+    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+
+    <!-- 生产版本 -->
+    <!-- <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css"> -->
+
+
+    <!-- 去除圆角-->
+    <style>
+        .navbar {
+            border-radius: 0;
+        }
+    </style>
+
+    <!-- 登录的区域-->
+
+    <style>
+        .accountpage {
+            width: 500px;
+            margin: 0 auto;
+            padding: 50px 20px;  
+            border: 1px solid #ccc; 
+            border-radius: 0px;  
+            background-color: #f2f2f2;
+
+            margin-top: 100px;
+            margin-left: auto;
+            margin-right: auto;
+        
+        }
+
+        .accountpage h1{
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 1000;
+        }
+        .registerlink{
+            text-align: center;
+        }
+    </style>
+
 </head>
 
 
 <body>
-    <h1>用户登录</h1>
-    <form method="post" action="/login/">
-        <!-- 对于django项目，这里需要安全校验 -->
-         {% csrf_token %}
-        <input type="text" name="user" placeholder="用户名">
-        <input type="password" name="pwd" placeholder="密码">
-        <input type="submit" value="提交">
-        
-    </form>
+    <div class="accountpage">
+        <form class="form-signin" method="post" action="/login/">
+            <!--django 的安全验证-->
+            {% csrf_token %}
+          <h1 class="form-signin-heading">请 登 录</h2>
+            <div class="form-group">
+                <input type="text" name="username" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" class="form-control" placeholder="Password" aria-describedby="basic-addon1">
+            </div>
+          <button class="btn btn-lg btn-primary btn-block" type="submit" style="width: 100%;">登 录</button>
+        </form>
+    </div>
+
+     <!--这里写个注册链接-->
+     <div class="registerlink">
+        <a href="/register/" class="btn btn-link">没有账号？注册一个</a>
+    </div>
+
 </body>
 </html>
