@@ -25,7 +25,8 @@ urlpatterns = [
     # 这里要注意，最后一个结尾不能有“,”否则最后一个会找不到
     path('index/', UserloginViews.index),
     path('login/',UserloginViews.login),
-    path('addtest/',UserloginViews.addtest)
+    path('addtest/',UserloginViews.addtest),
+    path('register/',UserloginViews.register)
 ]
 
 

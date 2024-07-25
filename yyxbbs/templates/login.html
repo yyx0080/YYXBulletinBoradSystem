@@ -63,9 +63,19 @@
           <button class="btn btn-lg btn-primary btn-block" type="submit" style="width: 100%;">登 录</button>
         </form>
     </div>
+    
 
+    {% if messages %}
+    <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+    
      <!--这里写个注册链接-->
      <div class="registerlink">
+        <!--这里会跳转到register URL的位置-->
         <a href="/register/" class="btn btn-link">没有账号？注册一个</a>
     </div>
 

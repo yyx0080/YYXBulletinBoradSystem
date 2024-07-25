@@ -18,3 +18,14 @@ def UserInfoCorret(username,pwd):
         if usernamefromdb[0].password == pwd:
             return True
     return False
+
+def UserInfoExist(username):
+    usernamefromdb = UserInfo.objects.filter(name=username)
+    if usernamefromdb:
+        return True
+    return False
+
+#注册用户
+def AddUserInfo(username,pwd):
+    UserInfo.objects.create(name = username,password=pwd,point = 0
+                            ,last_login_date = datetime.datetime.now(),login_data = datetime.datetime.now())
