@@ -1,0 +1,27 @@
+/* 导航栏样式 */
+body {
+    background-color: #e5e7e6;
+    margin: 0; /* 确保 body 没有默认的 margin */
+}
+.navbar-inverse {
+    background-color: transparent;
+    border-color: transparent;
+}
+.navbar-inverse .navbar-nav > li > a {
+    font-family: 'yugongfont', sans-serif; 
+    color: #4a5d73; /* 设置默认文字颜色 */
+    font-size: 20px;
+    transition: background-color 0.3s, color 0.3s; /* 添加过渡效果 */
+}
+.navbar-inverse .navbar-nav > li > a:hover {
+    background-color: #7897be; /* 鼠标悬停时的背景颜色 */
+    color: #fff; /* 鼠标悬停时的文字颜色 */
+}
+.navbar-inverse .navbar-nav > li > a:active {
+    background-color: #555; /* 鼠标按下时的背景颜色 */
+    color: #fff; /* 鼠标按下时的文字颜色 */
+}
+
+.navbar-inverse .container {
+    width: 100%
+}

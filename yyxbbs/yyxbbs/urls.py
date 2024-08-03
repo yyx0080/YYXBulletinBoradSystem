@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 
 from Userlogin import views as UserloginViews
+from BoardManagement import views as BoardManagementViews
 #URL和py函数的对应关系，都写在这里
 urlpatterns = [
     # url -> admin.site.urls这个函数
@@ -26,7 +27,8 @@ urlpatterns = [
     path('index/', UserloginViews.index),
     path('login/',UserloginViews.login),
     path('addtest/',UserloginViews.addtest),
-    path('register/',UserloginViews.register)
+    path('register/',UserloginViews.register),
+    path('board/',BoardManagementViews.manage_board)
 ]
 
 
