@@ -19,6 +19,8 @@ from django.urls import path
 
 from Userlogin import views as UserloginViews
 from BoardManagement import views as BoardManagementViews
+from django.conf.urls.static import static
+from django.conf import settings
 #URL和py函数的对应关系，都写在这里
 urlpatterns = [
     # url -> admin.site.urls这个函数
@@ -26,9 +28,13 @@ urlpatterns = [
     # 这里要注意，最后一个结尾不能有“,”否则最后一个会找不到
     path('index/', UserloginViews.index),
     path('login/',UserloginViews.login),
-    path('addtest/',UserloginViews.addtest),
+    path('addtest/',UserloginViews.addtest), #测试接口
     path('register/',UserloginViews.register),
-    path('board/',BoardManagementViews.manage_board)
+    path('board/',BoardManagementViews.manage_board),
+    path('AddBoradInfoTest/',BoardManagementViews.AddBoradInfoTest), #测试接口
+    path('RichTextSubmit/',BoardManagementViews.submit_comment), #测试接口
+    path('ShowRichText/',BoardManagementViews.show_richText) #测试接口
+    
 ]
 
 

@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'Userlogin.apps.UserloginConfig'
+    'Userlogin.apps.UserloginConfig',
+    'BoardManagement.apps.BoardmanagementConfig'
+
 ]
 
 MIDDLEWARE = [
@@ -141,3 +143,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = ( os.path.join('static'), )
 STATIC_ROOT = ''
+

@@ -1,0 +1,42 @@
+<!--测试用-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Comment</title>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+    <form id="comment-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Username"><br>
+        <div id="editor-container"></div><br>
+        <input type="file" name="image"><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script>
+        var quill = new Quill('#editor-container', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, false] }],
+                    ['bold', 'italic', 'underline'],
+                    ['image', 'code-block']
+                ]
+            }
+        });
+
+        document.getElementById('comment-form').addEventListener('submit', function(event) {
+            var content = quill.root.innerHTML;
+            var hiddenInput = document.createElement('input');
+            hiddenInput.setAttribute('type', 'hidden');
+            hiddenInput.setAttribute('name', 'content');
+            hiddenInput.setAttribute('value', content);
+            this.appendChild(hiddenInput);
+        });
+    </script>
+</body>
+</html>
