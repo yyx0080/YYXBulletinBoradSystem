@@ -2,13 +2,26 @@ from django.shortcuts import render,HttpResponse
 from BoardManagement import ormoperator
 from django.http import JsonResponse
 from .models import BoradInfo #这里其实是用不到的。记得注释掉
+from django.core.paginator import Paginator
 import datetime
 import os
 
 
 # Create your views here.
+# 主界面，登录成功后调用这个接口
 def manage_board(request):
-    return HttpResponse("Manage Board")
+    # 这里将数据库中的数据取出来,传给前端展示即可
+    borad_info_list = ormoperator.GetBoradInfo()
+
+    # 分页，每页显示 10 条评论
+    paginator = Paginator(borad_info_list, 10)  
+    page_number = request.GET.get('page')  # 从 URL 获取当前页码
+    page_obj = paginator.get_page(page_number)  # 获取当前页的数据
+
+    # 将分页对象传递给前端
+    context = {'comments': page_obj}
+    return render(request, 'board.html', context)
+    #return HttpResponse("Manage Board")
 
 #到时候上线网站的时候要清理掉这些测试接口，测试接口会标明测试
 #测试接口

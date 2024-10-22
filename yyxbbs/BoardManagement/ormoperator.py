@@ -2,6 +2,12 @@ from BoardManagement.models import BoradInfo
 import datetime
 #这里用来写数据库的操作
 
+
+# 取出所有留言，展示给前端
+def GetBoradInfo():
+    borad_info_list = BoradInfo.objects.all().order_by('-board_date')  # 按日期降序排列
+    return borad_info_list
+
 # 测试函数，用来添加一些测试数据进去
 #测试接口
 def TestAddBoradInfo():

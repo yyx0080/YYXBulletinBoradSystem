@@ -1,6 +1,8 @@
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render,HttpResponse,redirect
+from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from Userlogin import ormoperator
+from BoardManagement import views as BoardManagementViews
 # Create your views here.
 # 写功能函数
 def index(request):
@@ -18,9 +20,12 @@ def login(req):
         pwd = req.POST.get("password")
         print(req.POST)
         print(username,pwd)
+        # 使用 Django 的认证系统验证用户
+        user = authenticate(req, username=username, password=pwd)
         #这里调用ormoperator.UserInfoCorret函数进行登录验证
         if ormoperator.UserInfoCorret(username,pwd):
-            return HttpResponse("登录成功") #渲染新的成功页面，这里暂时用HttpResponse代替
+            # 这里要注意一下url的层级问题即可，board在上一个目录下，所以这里要返回上一级目录
+            return redirect('../board') # 登录成功后这里重定向manage_board函数的响应
         else:
             messages.error(req, '用户名或密码不正确') #使用django的消息机制显示错误信息
             return render(req,"login.html")
@@ -62,6 +67,7 @@ def register(request):
         
 
 #这个函数仅作测试使用
+#测试接口
 def addtest(request):
     ormoperator.TestAddUserInfo()
     return HttpResponse("测试数据添加成功")
