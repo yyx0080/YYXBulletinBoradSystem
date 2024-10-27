@@ -1,11 +1,10 @@
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render,HttpResponse,redirect
 from BoardManagement import ormoperator
 from django.http import JsonResponse
 from .models import BoradInfo #这里其实是用不到的。记得注释掉
 from django.core.paginator import Paginator
 import datetime
 import os
-
 
 # Create your views here.
 # 主界面，登录成功后调用这个接口
@@ -29,26 +28,23 @@ def AddBoradInfoTest(request):
     ormoperator.TestAddBoradInfo()
     return HttpResponse("添加成功")
 
-
-#测试富文本写入
-#测试接口
 def submit_comment(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
         content = request.POST.get('content')
-        image = request.FILES.get('image')
-
-
-        BoradInfo.objects.create(
-            username=username,
-            content=content,
-            board_date=datetime.date.today(),
-            like_point=0,
-            type=1 if image else 0
-        )
-
-        return JsonResponse({'status': 'success'})
-    return render(request, 'submit_commit.html')
+        if request.user.is_authenticated:
+            #获取当前用户名
+            username = request.user.name
+            print("name = ",username)
+            #调用数据库操作,向数据库内部添加数据
+            ormoperator.AddUserComment(username, content)
+            #这里要返回上一层级
+            return redirect('../board') #重定向到当前页面（作为刷新作用）
+        else:
+            return HttpResponse("请先登录")
+    
+    else:
+        return HttpResponse("Not POST")
+    
 
 #测试富文本展示接口
 #测试接口

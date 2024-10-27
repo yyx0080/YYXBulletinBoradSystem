@@ -116,6 +116,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# 认证设置，用于持久化用户信息
+AUTH_USER_MODEL = 'Userlogin.UserInfo'
+
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

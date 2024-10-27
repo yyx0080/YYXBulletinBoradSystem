@@ -2,7 +2,6 @@ from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from Userlogin import ormoperator
-from BoardManagement import views as BoardManagementViews
 # Create your views here.
 # 写功能函数
 def index(request):
@@ -10,25 +9,32 @@ def index(request):
 
 
 #登录函数
-def login(req):
+def login_view(req):
     #第一次访问，是get请求，所以这里把界面渲染给用户
     if req.method == "GET":
         return render(req,"login.html")
     #否则为post请求，获取用户提交的数据
     else:
-        username = req.POST.get("username")
+        username_temp = req.POST.get("username")
         pwd = req.POST.get("password")
-        print(req.POST)
-        print(username,pwd)
-        # 使用 Django 的认证系统验证用户
-        user = authenticate(req, username=username, password=pwd)
-        #这里调用ormoperator.UserInfoCorret函数进行登录验证
-        if ormoperator.UserInfoCorret(username,pwd):
+        user = ormoperator.IsCorretUser(username_temp,pwd)
+        print(user.name)
+        print(user.password)
+        #这里调用IsCorrectUser函数进行登录验证
+        if user is not None:
+             # 使用 Django 的认证系统验证用户
+            user = authenticate(req, name=username_temp, password=pwd)
+            login(req, user)  # 登录用户，持久化会话
+            
+            print("持久化成功")
+            print("Authenticated User:", user)  # 输出用户对象
             # 这里要注意一下url的层级问题即可，board在上一个目录下，所以这里要返回上一级目录
             return redirect('../board') # 登录成功后这里重定向manage_board函数的响应
         else:
+            print("持久化失败")
             messages.error(req, '用户名或密码不正确') #使用django的消息机制显示错误信息
             return render(req,"login.html")
+        
     
 
 def register(request):
