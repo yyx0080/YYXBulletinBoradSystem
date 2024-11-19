@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+from django.shortcuts import redirect
 from Userlogin import views as UserloginViews
 from BoardManagement import views as BoardManagementViews
 from django.conf.urls.static import static
@@ -26,6 +26,7 @@ urlpatterns = [
     # url -> admin.site.urls这个函数
     path('admin/', admin.site.urls),
     # 这里要注意，最后一个结尾不能有“,”否则最后一个会找不到
+    path('', lambda request: redirect('/login/')),
     path('index/', UserloginViews.index),
     path('login/',UserloginViews.login_view),
     path('addtest/',UserloginViews.addtest), #测试接口
