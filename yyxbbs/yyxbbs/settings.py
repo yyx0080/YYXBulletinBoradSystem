@@ -25,8 +25,22 @@ SECRET_KEY = 'django-insecure-@!m$i_otf6e(cb$+1=&#kwyzgqe=oqw732y&ylerm)(xju39uq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+# 服务器专属设置↓
+ALLOWED_HOSTS = [
+    'frp-all.com',      # 如果需要支持不带 www 的域名
+    'localhost',       # 本地开发环境
+    '127.0.0.1',       # 本地开发环境
+    'win-k0k4u5uuhl2',
+    'frp-all.com',      # 樱花隧道
+    'www.yyxbbs.cn',
+    'yyxbbs.cn'
+]
+CSRF_TRUSTED_ORIGINS = [
+    'https://frp-all.com:13491',
+    'https://www.frp-all.com',
+    'https://frp-all.com'  # 如果需要支持不带 www 的域名
+]
+# 服务器专属设置↑
 
 # Application definition
 
@@ -148,4 +162,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = ( os.path.join('static'), )
 STATIC_ROOT = ''
+
 
