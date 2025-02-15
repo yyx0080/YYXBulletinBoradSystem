@@ -34,8 +34,8 @@ def IsCorretUser(username,pwd):
         # 修改用户的最后一次登录时间
         user.last_login_date = datetime.now()
         user.save()
-        return user
-    return user
+        return user,True # xxx,True表示登录成功,要不然会出bug
+    return user,False
 
 #注册用户
 def AddUserInfo(username,pwd):

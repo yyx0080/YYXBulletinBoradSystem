@@ -29,6 +29,9 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
     point = models.IntegerField(default=0)  # 积分，默认为0
     last_login_date = models.DateTimeField(null=True, blank=True)  # 最后一次登录时间
     login_date = models.DateField(auto_now_add=True)  # 注册日期，自动添加日期
+    last_attendance_date = models.DateField(null=True, blank=True) # 最后签到日期
+
+
     is_active = models.BooleanField(default=True)  # 用户是否激活
     is_staff = models.BooleanField(default=False)  # 是否为管理员
 

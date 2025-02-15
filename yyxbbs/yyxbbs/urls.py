@@ -19,6 +19,7 @@ from django.urls import path
 from django.shortcuts import redirect
 from Userlogin import views as UserloginViews
 from BoardManagement import views as BoardManagementViews
+from DailyAttendance import views as DailyAttendanceViews
 from django.conf.urls.static import static
 from django.conf import settings
 #URL和py函数的对应关系，都写在这里
@@ -34,7 +35,9 @@ urlpatterns = [
     path('board/',BoardManagementViews.manage_board),
     path('RichTextSubmit/',BoardManagementViews.submit_comment),
     path('AddBoradInfoTest/',BoardManagementViews.AddBoradInfoTest), #测试接口
-    path('ShowRichText/',BoardManagementViews.show_richText) #测试接口
+    path('ShowRichText/',BoardManagementViews.show_richText), #测试接口
+    path('DailyAttendance/',DailyAttendanceViews.daily_attendance), # 渲染每日签到页面的接口
+    path('DailyAttendanceClick/',DailyAttendanceViews.daily_attendance_click)
     
 ]
 

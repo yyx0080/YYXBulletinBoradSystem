@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <!-- 开发版本 -->
+    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+    <!-- 生产版本 -->
+    <!-- <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css"> -->
+    <!-- 设置背景颜色 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--导入字体的css-->
+    <link herf="../static/bootstrap/css/myfont.css" rel="stylesheet">
+    <!-- 导入导航栏文件 -->
+    <link rel="stylesheet" href="../static/bootstrap/css/navstyle.css">
+    <!-- 导入富文本编辑器 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- 导入浮动评论区样式css -->
+    <link rel="stylesheet" href="../static/bootstrap/css/commentfloat.css">
+    <!-- 引入 Bootstrap 样式 -->
+    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+
+    <style>
+        /* 自定义 CSS，使签到框在页面中间居中显示 */
+        .attendance-box {
+            max-width: 500px;      /* 设置签到框的最大宽度 */
+            margin: 100px auto;    /* 上边距 100px，左右自动居中 */
+            padding: 20px;         /* 内部留白 */
+            border: 1px solid #ddd;/* 边框颜色 */
+            border-radius: 8px;    /* 圆角边框 */
+            background-color: #f9f9f9; /* 背景色 */
+            text-align: center;    /* 内容居中对齐 */
+        }
+    </style>
+
+</head>
+<body>
+    <!-- 导航栏 -->
+    <!-- 这里导航栏顶部的背景颜色还没改-->
+    <nav class="navbar navbar-inverse navbar-fixed-top",style="background-color:rgb(211, 214, 212)">
+        <div class="container">
+            <div class="navbar-header">
+                <!-- 这里先用#-->
+                <a class="navbar-brand" href="#">普通的留言板</a> 
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/board">留言板</a></li>
+                    <li><a href="#">个人信息</a></li>
+                    <li><a href="/DailyAttendance">每日签到</a></li>
+                    <li><a href="#">小游戏</a></li>
+                    <li><a href="#">DeepSeek</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- 每日签到功能-->
+    <!-- 首先是需要整个网页居中的位置有一个每日签到的框-->
+    <!-- 框下面有一个确认签到的按钮，点击后按钮变灰无法点击，显示已签到-->
+    <div class="container">
+        <!-- 签到框 -->
+        <div class="attendance-box">
+            <h2>每日签到</h2>
+            <p>点击下面按钮进行每日签到</p>
+            <!-- 签到按钮 -->
+            <!-- 签到表单 -->
+            <form method="POST" action="/DailyAttendanceClick/">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">签到</button>
+            </form>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+     <div style="text-align: center; margin-top: 20px;">
+        <a href="https://beian.miit.gov.cn/" target="_blank">备案号：闽ICP备2024029524号-2</a>
+    </div>
+</body>
+</html>

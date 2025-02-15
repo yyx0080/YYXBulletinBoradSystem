@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'Userlogin.apps.UserloginConfig',
-    'BoardManagement.apps.BoardmanagementConfig'
+    'BoardManagement.apps.BoardmanagementConfig',
+    'DailyAttendance.apps.DailyattendanceConfig'
 
 ]
 

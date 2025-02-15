@@ -17,11 +17,11 @@ def login_view(req):
     else:
         username_temp = req.POST.get("username")
         pwd = req.POST.get("password")
-        user = ormoperator.IsCorretUser(username_temp,pwd)
+        user,isPasswordCorrect = ormoperator.IsCorretUser(username_temp,pwd)
         print(user.name)
         print(user.password)
         #这里调用IsCorrectUser函数进行登录验证
-        if user is not None:
+        if user is not None and isPasswordCorrect:
              # 使用 Django 的认证系统验证用户
             user = authenticate(req, name=username_temp, password=pwd)
             login(req, user)  # 登录用户，持久化会话
