@@ -28,16 +28,18 @@
 {
     position: relative;
     flex: 0 0 30%;
+
     background:#fff;
     border-right: 1px solid rgba(0, 0, 0, 0.2);
 }
-.mycontainer .rightside
+.mycontainer .rightSide /*这里的字母是小写的s....我改成大写了*/
 {
     position: relative;
     flex: 0 0 70%;
-    background:#dad5e5;
+
+    background:#5a19e7;
 }
-.mycontainer .rightside::before
+.mycontainer .rightSide::before /*这里的字母是小写的s....我改成大写了*/
 {
     content: '';
     position: absolute;
@@ -308,6 +310,7 @@
 }
 .chatbox_input
 {
+    display: flex;
     position: relative;
     width: 100%;
     height: 150px;
@@ -319,9 +322,9 @@
 }
 .chatbox_input input
 {
+    display: flex;
     position: relative;
     width: 90%;
-    
     margin: 0 20px;
     padding: 10px 20px;
     border: none;

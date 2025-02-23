@@ -11,3 +11,4 @@ class BoradInfo(models.Model):
     image_path = models.CharField(max_length=100, blank=True, default='')
     type = models.IntegerField()
     dontlike_point = models.IntegerField(default=0)
+    
