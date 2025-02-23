@@ -126,6 +126,32 @@
     <!-- Bootstrap 的 JS 文件 -->
     <script src="../static/bootstrap/js/bootstrap.js"></script>
     
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    function likeComment(commentId) {
+        $.ajax({
+            url: "/like_comment/",  // 后端处理点赞的 URL
+            type: "POST",
+            data: {
+                "comment_id": commentId,
+                "csrfmiddlewaretoken": "{{ csrf_token }}"  // 确保 Django 保护 CSRF
+            },
+            success: function(response) {
+                if (response.status === "success") {
+                    // 更新点赞数
+                    $("#like-count-" + commentId).text(response.new_like_count);
+                } else {
+                    alert("点赞失败：" + response.message);
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                alert("请求失败，请重试！");
+            }
+        });
+    }
+    </script>
+
+
     <div style="text-align: center; margin-top: 20px;">
         <a href="https://beian.miit.gov.cn/" target="_blank">备案号：闽ICP备2024029524号-2</a>
     </div>
