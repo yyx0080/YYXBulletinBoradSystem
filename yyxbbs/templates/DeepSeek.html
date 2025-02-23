@@ -19,6 +19,9 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <!-- 导入浮动评论区样式css -->
     <link rel="stylesheet" href="../static/bootstrap/css/commentfloat.css">
+    <!-- 导入对话框样式css -->
+    <link rel="stylesheet" href="../static/bootstrap/css/deepseek_style.css">
+
 
 </head>
 
@@ -43,10 +46,97 @@
     </nav>
 
     <h1 style="text-align: center; margin-top: 100px;">DeepSeek</h1>
-    
+
+    <!-- 对话框 -->
+    <div class="mycontainer">
+        <div class="leftSide">
+            <!--header-->
+            <div class="myheader">
+                <div class="imgText">
+                    <div class="userimg">
+                        <img src="../static/img/user.png" class="cover">
+                    </div>
+                    <h4>user_id</h4>
+                </div>
+                
+            </div>
+            <!--history_time-->
+            <div class="imgText">
+                <div>
+                    <h4>仅展示最近30天的记录</h4>
+                </div>
+            </div>
+            <!--ChatList（待完善）-->
+            <div class="chatlist">
+                <div class="block active">
+                    <div class="details">
+                        <div class="listHead">
+                            <p class="time">14:25</p>
+                        </div>
+                        <div class="message_p">
+                            <p>hfj是不是sb？</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="block unread">
+                    <div class="details">
+                        <div class="listHead">
+                            <p class="time">15:10</p>
+                        </div>
+                        <div class="message_p">
+                            <p>hfj真是sb吧</p>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="block">
+                    <div class="details">
+                        <div class="listHead">
+                            <p class="time">11:15</p>
+                        </div>
+                        <div class="message_p">
+                            <p>叫hfj何处对吗？</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+
+
+        <div class="rightSide">
+            <div class="myheader">
+                <div class="imgText">
+                    <div class="userimg">
+                        <img src="../static/img/deepseek.png" class="cover">
+                    </div>
+                    <h4>DeepSeek</h4>
+                </div>
+            </div>
+            
+            <!--chatbox-->
+            <div class="chatBox">
+                <div class="message my_message">
+                    <p>你在干嘛呢？<br><span>10:15</span> </p>
+                </div>
+                <div class="message frnd_message">
+                    <p>上号！<br><span>10:15</span> </p>
+                </div>
+            </div>
+
+            <!--chat input-->
+            <div class="chatbox_input">
+                <div>
+                    <input type="text">
+                </div>
+            
+            </div>
+        </div>
+        
+    </div>
     <div style="text-align: center; margin-top: 20px;">
         <a href="https://beian.miit.gov.cn/" target="_blank">备案号：闽ICP备2024029524号-2</a>
     </div>
-    
-
-</body>
+<body>
+</html>
