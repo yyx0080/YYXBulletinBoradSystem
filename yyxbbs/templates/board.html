@@ -20,6 +20,8 @@
     <!-- 导入浮动评论区样式css -->
     <link rel="stylesheet" href="../static/bootstrap/css/commentfloat.css">
 
+    
+    
 </head>
 
 <body>
@@ -60,6 +62,9 @@
                         </div>
                         <div class="panel-footer">
                             <p>点赞数: {{ comment.like_point }}</p>
+                            <button class="btn btn-primary btn-sm" onclick="likeComment({{ comment.id }})">
+                                👍 点赞
+                            </button>
                         </div>
                     </div>
                 </div>
