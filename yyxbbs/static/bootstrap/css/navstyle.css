@@ -1,5 +1,9 @@
 /* 导航栏样式 */
 body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 水平居中 */
+    align-items: center;
     background-color: #e5e7e6;
     margin: 0; /* 确保 body 没有默认的 margin */
 }
