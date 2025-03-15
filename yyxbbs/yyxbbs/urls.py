@@ -41,7 +41,8 @@ urlpatterns = [
     path('DailyAttendance/',DailyAttendanceViews.daily_attendance), # 渲染每日签到页面的接口
     path('DailyAttendanceClick/',DailyAttendanceViews.daily_attendance_click),
     path('PersonInfo/',PersonInfoViews.get_person_info),
-    path('DeepSeek/',DeepSeekViews.deep_seek)
+    path('DeepSeek/',DeepSeekViews.deep_seek),
+    path('like_comment/',BoardManagementViews.like_comment)
     
 ]
 

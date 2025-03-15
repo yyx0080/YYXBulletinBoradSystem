@@ -139,7 +139,8 @@
             success: function(response) {
                 if (response.status === "success") {
                     // 更新点赞数
-                    $("#like-count-" + commentId).text(response.new_like_count);
+                    // $("#like-count-" + commentId).text(response.new_like_count);
+                    location.reload();// 用刷新页面的方法
                 } else {
                     alert("点赞失败：" + response.message);
                 }
