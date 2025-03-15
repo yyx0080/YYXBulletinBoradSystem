@@ -53,3 +53,17 @@ def show_richText(request):
     comments = BoradInfo.objects.filter(username='test07')
     # 将查询结果传递到模板中进行展示
     return render(request, 'display_comments.html', {'comments': comments})
+
+#点赞功能
+def like_comment(request):
+    if request.method == "POST":
+        comment_id = request.POST.get("comment_id")
+        print(comment_id)
+        isCommentExist = ormoperator.AddLikePointByCommentId(comment_id)
+        if isCommentExist:
+            return JsonResponse({"status": "success", "new_like_count": ormoperator.GetLikePointByCommentId(comment_id)})
+        else:
+            return JsonResponse({"status": "error", "message": "评论不存在"})
+
+
+    return JsonResponse({"status": "error", "message": "无效请求"})

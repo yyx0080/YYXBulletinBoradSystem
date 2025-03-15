@@ -33,3 +33,15 @@ def AddUserComment(username, content):
         image_path='',
         type=0  # 留言类型为普通留言
     )
+
+def AddLikePointByCommentId(commentid):
+    comment = BoradInfo.objects.get(id=commentid)
+    if comment:
+        comment.like_point += 1
+        comment.save()
+        return True
+    else:
+        return False
+
+def GetLikePointByCommentId(commentid):
+    return BoradInfo.objects.get(id=commentid).like_point
