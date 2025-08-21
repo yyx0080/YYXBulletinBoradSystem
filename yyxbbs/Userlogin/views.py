@@ -22,7 +22,7 @@ def login_view(req):
         print(user.password)
         #这里调用IsCorrectUser函数进行登录验证
         if user is not None and isPasswordCorrect:
-             # 使用 Django 的认证系统验证用户
+             # 使用 Django 的认证系统验证用户（中间件，这是Django自带的，在setting里设置了）
             user = authenticate(req, name=username_temp, password=pwd)
             login(req, user)  # 登录用户，持久化会话
             

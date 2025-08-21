@@ -55,7 +55,8 @@ INSTALLED_APPS = [
 
     'Userlogin.apps.UserloginConfig',
     'BoardManagement.apps.BoardmanagementConfig',
-    'DailyAttendance.apps.DailyattendanceConfig'
+    'DailyAttendance.apps.DailyattendanceConfig',
+    'DeepSeek.apps.DeepseekConfig'
 
 ]
 
@@ -108,6 +109,10 @@ DATABASES = {
         'PASSWORD':'WANG892207142.',
         'HOST':'127.0.0.1',
         'PORT': 3306,
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
     }
 }
 
@@ -164,4 +169,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = ( os.path.join('static'), )
 STATIC_ROOT = ''
 
-
+# DeepSeek相关
+DEEPSEEK_API_KEY = "sk-e0894fd69b924b6f9fc4d501ca360f6b"
+DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
+# DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"  # 确认API端点

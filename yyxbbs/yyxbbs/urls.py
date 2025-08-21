@@ -41,7 +41,17 @@ urlpatterns = [
     path('DailyAttendance/',DailyAttendanceViews.daily_attendance), # 渲染每日签到页面的接口
     path('DailyAttendanceClick/',DailyAttendanceViews.daily_attendance_click),
     path('PersonInfo/',PersonInfoViews.get_person_info),
-    path('DeepSeek/',DeepSeekViews.deep_seek)
+    # path('DeepSeek/',DeepSeekViews.deep_seek),
+    path('DeepSeekChat/', DeepSeekViews.deepseek_chat, name='deepseek_chat'),
+    # API端点
+    path('start/', DeepSeekViews.start_conversation, name='start_conversation'),
+    path('chat/', DeepSeekViews.chat_api, name='chat_api'),
+    path('api/conversations/', DeepSeekViews.conversation_list_api, name='conversation_list_api'),
+    path('api/conversations/<int:conversation_id>/messages/', 
+         DeepSeekViews.conversation_messages_api, name='conversation_messages_api'),
+    path('conversation/delete/<int:conversation_id>/', 
+         DeepSeekViews.delete_conversation, name='delete_conversation'),
+
     
 ]
 

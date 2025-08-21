@@ -1,0 +1,499 @@
+<!-- templates/Chat_interface.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek 对话助手</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+    
+    <!-- Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 导入导航栏文件 -->
+    <link rel="stylesheet" href="../static/bootstrap/css/navstyle.css">
+
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../static/bootstrap/css/deepseek_style.css">
+
+    <style>
+        /* 保持之前的CSS样式不变 */
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #3b82f6;
+            --bg-color: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-light: #64748b;
+            --border-color: #e2e8f0;
+            --ai-bubble: #f1f5f9;
+            --user-bubble: #2563eb;
+            --user-text: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* 其余CSS样式保持不变... */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+            padding-top: 50px; /* 为导航栏留出空间 */
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+     <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <!-- 这里先用#-->
+                <a class="navbar-brand" href="#">普通的留言板</a> 
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/board">留言板</a></li>
+                    <li><a href="/PersonInfo">个人信息</a></li>
+                    <li><a href="/DailyAttendance">每日签到</a></li>
+                    <li><a href="#">小游戏</a></li>
+                    <li><a href="/DeepSeekChat">DeepSeek</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- DeepSeek 聊天界面 -->
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>DeepSeek</span>
+                </div>
+                <button class="new-chat-btn" id="new-chat-btn">
+                    <i class="fas fa-plus"></i>
+                    <span>新对话</span>
+                </button>
+            </div>
+            
+            <div class="conversations-list" id="conversations-list">
+                <!-- 对话历史将通过JavaScript动态添加 -->
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-avatar">
+                    <span id="user-initial">{{ user.name|first|upper }}</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="username">{{ user.name }}</div>
+                    <!-- <div class="user-status">积分: {{ user.point }}</div> -->
+                </div>
+                <button class="action-btn" id="settings-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 主聊天区域 -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title" id="current-chat-title">新对话</div>
+                <div class="chat-actions">
+                    <button class="action-btn" id="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <button class="action-btn" id="delete-chat-btn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="action-btn">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="messages-container" id="messages-container">
+                <!-- 欢迎消息 -->
+                <div class="message ai">
+                    <div class="avatar ai-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <p>您好！我是DeepSeek AI助手，很高兴为您服务。请问有什么我可以帮助您的吗？</p>
+                        <div class="message-timestamp">刚刚</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <div class="input-box">
+                    <textarea 
+                        class="message-input" 
+                        id="message-input" 
+                        placeholder="输入您的问题..." 
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="send-btn" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加CSRF token用于AJAX请求 -->
+    <script>
+        // 获取CSRF token的函数
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const messageInput = document.getElementById('message-input');
+            const sendBtn = document.getElementById('send-btn');
+            const messagesContainer = document.getElementById('messages-container');
+            const conversationsList = document.getElementById('conversations-list');
+            const newChatBtn = document.getElementById('new-chat-btn');
+            const deleteChatBtn = document.getElementById('delete-chat-btn');
+            const currentChatTitle = document.getElementById('current-chat-title');
+            
+            // 当前对话状态
+            let currentConversationId = null;
+            let isWaitingForResponse = false;
+            
+            // 初始化 - 加载对话列表
+            loadConversations();
+            
+            // 加载对话列表
+            function loadConversations() {
+                fetch('{% url "conversation_list_api" %}')
+                    .then(response => response.json())
+                    .then(conversations => {
+                        conversationsList.innerHTML = '';
+                        
+                        if (conversations.length === 0) {
+                            conversationsList.innerHTML = '<div class="empty-state">暂无对话记录</div>';
+                            return;
+                        }
+                        
+                        conversations.forEach(convo => {
+                            const convoElement = document.createElement('div');
+                            convoElement.className = `conversation-item ${convo.id === currentConversationId ? 'active' : ''}`;
+                            convoElement.dataset.id = convo.id;
+                            convoElement.innerHTML = `
+                                <i class="fas fa-comment conversation-icon"></i>
+                                <div class="conversation-title">${convo.title}</div>
+                            `;
+                            convoElement.addEventListener('click', () => switchConversation(convo.id));
+                            conversationsList.appendChild(convoElement);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('加载对话列表失败:', error);
+                        conversationsList.innerHTML = '<div class="empty-state">加载对话列表失败</div>';
+                    });
+            }
+            
+            // 切换对话
+            function switchConversation(conversationId) {
+                fetch(`/api/conversations/${conversationId}/messages/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        currentConversationId = conversationId;
+                        currentChatTitle.textContent = data.title;
+                        
+                        // 清空消息区域并加载历史消息
+                        messagesContainer.innerHTML = '';
+                        
+                        data.messages.forEach(msg => {
+                            addMessage(msg.role, msg.content);
+                        });
+                        
+                        // 更新对话列表激活状态
+                        document.querySelectorAll('.conversation-item').forEach(item => {
+                            item.classList.remove('active');
+                            if (parseInt(item.dataset.id) === conversationId) {
+                                item.classList.add('active');
+                            }
+                        });
+                        
+                        scrollToBottom();
+                    })
+                    .catch(error => {
+                        console.error('加载对话消息失败:', error);
+                        alert('加载对话失败');
+                    });
+            }
+            
+            // 创建新对话
+            newChatBtn.addEventListener('click', function() {
+                fetch('{% url "start_conversation" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    currentConversationId = data.conversation_id;
+                    currentChatTitle.textContent = data.title;
+                    messagesContainer.innerHTML = '';
+                    
+                    addMessage('ai', '您好！我是DeepSeek AI助手，很高兴为您服务。请问有什么我可以帮助您的吗？');
+                    
+                    // 重新加载对话列表
+                    loadConversations();
+                })
+                .catch(error => {
+                    console.error('创建新对话失败:', error);
+                    alert('创建新对话失败');
+                });
+            });
+            
+            // 删除当前对话
+            deleteChatBtn.addEventListener('click', function() {
+                if (!currentConversationId) {
+                    alert('没有选中任何对话');
+                    return;
+                }
+                
+                if (!confirm('确定要删除这个对话吗？此操作不可撤销。')) {
+                    return;
+                }
+                
+                fetch(`/conversation/delete/${currentConversationId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // 重置为新建对话状态
+                        currentConversationId = null;
+                        currentChatTitle.textContent = '新对话';
+                        messagesContainer.innerHTML = '';
+                        addMessage('ai', '您好！我是DeepSeek AI助手，很高兴为您服务。请问有什么我可以帮助您的吗？');
+                        
+                        // 重新加载对话列表
+                        loadConversations();
+                    } else {
+                        alert('删除对话失败');
+                    }
+                })
+                .catch(error => {
+                    console.error('删除对话失败:', error);
+                    alert('删除对话失败');
+                });
+            });
+            
+            // 添加消息到聊天区域
+            function addMessage(sender, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+                
+                const avatar = sender === 'ai' 
+                    ? '<div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>' 
+                    : '<div class="avatar"><i class="fas fa-user"></i></div>';
+                
+                const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                messageDiv.innerHTML = `
+                    ${avatar}
+                    <div class="message-content">
+                        <p>${content}</p>
+                        <div class="message-timestamp">${timestamp}</div>
+                    </div>
+                `;
+                
+                messagesContainer.appendChild(messageDiv);
+                scrollToBottom();
+            }
+            
+            // 显示AI正在输入
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message ai';
+                typingDiv.id = 'typing-indicator';
+                
+                typingDiv.innerHTML = `
+                    <div class="avatar ai-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+                
+                messagesContainer.appendChild(typingDiv);
+                scrollToBottom();
+            }
+            
+            // 隐藏AI正在输入指示器
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            // 滚动到底部
+            function scrollToBottom() {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+            
+            // 发送消息到后端
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (!message || isWaitingForResponse) return;
+                
+                // 如果没有对话，先创建新对话
+                if (!currentConversationId) {
+                    fetch('{% url "start_conversation" %}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrftoken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        currentConversationId = data.conversation_id;
+                        currentChatTitle.textContent = data.title;
+                        
+                        // 添加用户消息到界面
+                        addMessage('user', message);
+                        messageInput.value = '';
+                        adjustTextareaHeight();
+                        sendBtn.disabled = true;
+                        
+                        // 显示AI正在输入
+                        showTypingIndicator();
+                        isWaitingForResponse = true;
+                        
+                        // 发送消息到API
+                        sendMessageToAPI(message);
+                        
+                        // 重新加载对话列表
+                        loadConversations();
+                    })
+                    .catch(error => {
+                        console.error('创建新对话失败:', error);
+                        alert('创建新对话失败');
+                    });
+                } else {
+                    // 添加用户消息到界面
+                    addMessage('user', message);
+                    messageInput.value = '';
+                    adjustTextareaHeight();
+                    sendBtn.disabled = true;
+                    
+                    // 显示AI正在输入
+                    showTypingIndicator();
+                    isWaitingForResponse = true;
+                    
+                    // 发送消息到API
+                    sendMessageToAPI(message);
+                }
+            }
+            
+            // 实际调用API发送消息
+            function sendMessageToAPI(message) {
+                const formData = new FormData();
+                formData.append('conversation_id', currentConversationId);
+                formData.append('prompt', message);
+                
+                fetch('{% url "chat_api" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideTypingIndicator();
+                    
+                    if (data.response) {
+                        addMessage('ai', data.response);
+                        
+                        // 更新对话标题（如果是第一条回复）
+                        if (currentChatTitle.textContent === '新对话') {
+                            currentChatTitle.textContent = 
+                                message.length > 30 ? message.substring(0, 30) + '...' : message;
+                                
+                            // 更新对话列表
+                            loadConversations();
+                        }
+                    } else {
+                        addMessage('ai', '错误: ' + (data.error || '未知错误'));
+                    }
+                    
+                    isWaitingForResponse = false;
+                })
+                .catch(error => {
+                    hideTypingIndicator();
+                    addMessage('ai', '请求失败: ' + error);
+                    isWaitingForResponse = false;
+                });
+            }
+            
+            // 调整输入框高度
+            function adjustTextareaHeight() {
+                messageInput.style.height = 'auto';
+                messageInput.style.height = (messageInput.scrollHeight) + 'px';
+            }
+            
+            // 输入框事件监听
+            messageInput.addEventListener('input', function() {
+                adjustTextareaHeight();
+                sendBtn.disabled = messageInput.value.trim() === '';
+            });
+            
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // 发送按钮事件
+            sendBtn.addEventListener('click', sendMessage);
+            
+            // 初始化
+            adjustTextareaHeight();
+        });
+    </script>
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="https://beian.miit.gov.cn/" target="_blank">备案号：闽ICP备2024029524号-2</a>
+    </div>
+</body>
+</html>
