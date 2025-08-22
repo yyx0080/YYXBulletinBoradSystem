@@ -50,7 +50,7 @@ urlpatterns = [
     path('api/conversations/<int:conversation_id>/messages/', 
          DeepSeekViews.conversation_messages_api, name='conversation_messages_api'),
     path('conversation/delete/<int:conversation_id>/', 
-         DeepSeekViews.delete_conversation, name='delete_conversation'),
+         DeepSeekViews.delete_conversation_view, name='delete_conversation'),
 
     
 ]

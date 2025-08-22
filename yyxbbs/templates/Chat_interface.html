@@ -229,7 +229,13 @@
                         messagesContainer.innerHTML = '';
                         
                         data.messages.forEach(msg => {
-                            addMessage(msg.role, msg.content);
+                            const messageTime = formatMessageTime(msg.created_at);
+                            if (msg.role === 'assistant') {
+                                addMessage('ai', msg.content, messageTime);
+                            }
+                            else{
+                                addMessage(msg.role, msg.content, messageTime);
+                            }                            
                         });
                         
                         // 更新对话列表激活状态
@@ -263,7 +269,7 @@
                     currentChatTitle.textContent = data.title;
                     messagesContainer.innerHTML = '';
                     
-                    addMessage('ai', '您好！我是DeepSeek AI助手，很高兴为您服务。请问有什么我可以帮助您的吗？');
+                    addMessage('ai', '您好！我是DeepSeek AI助手，很高兴为您服务。请问有什么我可以帮助您的吗？', new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
                     
                     // 重新加载对话列表
                     loadConversations();
@@ -298,7 +304,7 @@
                         currentConversationId = null;
                         currentChatTitle.textContent = '新对话';
                         messagesContainer.innerHTML = '';
-                        addMessage('ai', '您好！我是DeepSeek AI助手，很高兴为您服务。请问有什么我可以帮助您的吗？');
+                        addMessage('ai', '您好！我是DeepSeek AI助手，很高兴为您服务。请问有什么我可以帮助您的吗？', new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
                         
                         // 重新加载对话列表
                         loadConversations();
@@ -313,16 +319,14 @@
             });
             
             // 添加消息到聊天区域
-            function addMessage(sender, content) {
+            function addMessage(sender, content, timestamp) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${sender}`;
                 
-                const avatar = sender === 'ai' 
+                const avatar = sender === 'ai'
                     ? '<div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>' 
                     : '<div class="avatar"><i class="fas fa-user"></i></div>';
-                
-                const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                
+                        
                 messageDiv.innerHTML = `
                     ${avatar}
                     <div class="message-content">
@@ -333,6 +337,27 @@
                 
                 messagesContainer.appendChild(messageDiv);
                 scrollToBottom();
+            }
+
+            // 添加时间格式化函数
+            function formatMessageTime(isoString) {
+                if (!isoString) {
+                    // 如果没有提供时间，使用当前时间（作为后备）
+                    return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                }
+                
+                try {
+                    const date = new Date(isoString);
+                    // 检查日期是否有效
+                    if (isNaN(date.getTime())) {
+                        console.warn('无效的日期格式:', isoString);
+                        return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    }
+                    return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                } catch (e) {
+                    console.error('时间格式化错误:', e);
+                    return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                }
             }
             
             // 显示AI正在输入
@@ -389,7 +414,7 @@
                         currentChatTitle.textContent = data.title;
                         
                         // 添加用户消息到界面
-                        addMessage('user', message);
+                        addMessage('user', message, new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
                         messageInput.value = '';
                         adjustTextareaHeight();
                         sendBtn.disabled = true;
@@ -410,7 +435,7 @@
                     });
                 } else {
                     // 添加用户消息到界面
-                    addMessage('user', message);
+                    addMessage('user', message, new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
                     messageInput.value = '';
                     adjustTextareaHeight();
                     sendBtn.disabled = true;
@@ -443,7 +468,7 @@
                     hideTypingIndicator();
                     
                     if (data.response) {
-                        addMessage('ai', data.response);
+                        addMessage('ai', data.response, new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
                         
                         // 更新对话标题（如果是第一条回复）
                         if (currentChatTitle.textContent === '新对话') {
@@ -454,14 +479,14 @@
                             loadConversations();
                         }
                     } else {
-                        addMessage('ai', '错误: ' + (data.error || '未知错误'));
+                        addMessage('ai', '错误: ' + (data.error || '未知错误'), new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
                     }
                     
                     isWaitingForResponse = false;
                 })
                 .catch(error => {
                     hideTypingIndicator();
-                    addMessage('ai', '请求失败: ' + error);
+                    addMessage('ai', '请求失败: ' + error, new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
                     isWaitingForResponse = false;
                 });
             }

@@ -173,3 +173,5 @@ STATIC_ROOT = ''
 DEEPSEEK_API_KEY = "sk-e0894fd69b924b6f9fc4d501ca360f6b"
 DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 # DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"  # 确认API端点
+
+TIME_ZONE = 'Asia/Shanghai'
