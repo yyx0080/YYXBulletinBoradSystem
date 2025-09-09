@@ -18,18 +18,19 @@ def login_view(req):
         username_temp = req.POST.get("username")
         pwd = req.POST.get("password")
         user,isPasswordCorrect = ormoperator.IsCorretUser(username_temp,pwd)
-        print(user.name)
-        print(user.password)
         #这里调用IsCorrectUser函数进行登录验证
         if user is not None and isPasswordCorrect:
              # 使用 Django 的认证系统验证用户（中间件，这是Django自带的，在setting里设置了）
-            user = authenticate(req, name=username_temp, password=pwd)
-            login(req, user)  # 登录用户，持久化会话
+            _user = authenticate(req, name=username_temp, password=pwd)
+            login(req, _user)  # 登录用户，持久化会话
             
             print("持久化成功")
-            print("Authenticated User:", user)  # 输出用户对象
+            print("Authenticated User:", _user)  # 输出用户对象
             # 这里要注意一下url的层级问题即可，board在上一个目录下，所以这里要返回上一级目录
-            return redirect('../board') # 登录成功后这里重定向manage_board函数的响应
+            _response = redirect('../board')
+            # print("状态码：",_response.status_code)
+            return _response
+            # return redirect('../board') # 登录成功后这里重定向manage_board函数的响应
         else:
             print("持久化失败")
             messages.error(req, '用户名或密码不正确') #使用django的消息机制显示错误信息

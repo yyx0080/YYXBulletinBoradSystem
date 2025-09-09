@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
 
     'Userlogin.apps.UserloginConfig',
     'BoardManagement.apps.BoardmanagementConfig',
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -90,6 +92,36 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'yyxbbs.wsgi.application'
 
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda request: True,  # 总是显示工具栏
+    'RESULTS_CACHE_SIZE': 100,  # 缓存结果数量
+    'SHOW_COLLAPSED': True,     # 显示折叠的工具栏
+    'PROFILER_MAX_DEPTH': 10,   # 分析器最大深度
+}
+
+# 配置内部IPs
+INTERNAL_IPS = [
+    '127.0.0.1',
+    'localhost',
+]
+
+# 如果需要，配置Debug Toolbar的面板
+DEBUG_TOOLBAR_PANELS = [
+    'debug_toolbar.panels.history.HistoryPanel',
+    'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.timer.TimerPanel',
+    'debug_toolbar.panels.settings.SettingsPanel',
+    'debug_toolbar.panels.headers.HeadersPanel',
+    'debug_toolbar.panels.request.RequestPanel',
+    'debug_toolbar.panels.sql.SQLPanel',
+    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    'debug_toolbar.panels.templates.TemplatesPanel',
+    'debug_toolbar.panels.cache.CachePanel',
+    'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.logging.LoggingPanel',
+    'debug_toolbar.panels.redirects.RedirectsPanel',
+    'debug_toolbar.panels.profiling.ProfilingPanel',
+]
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
