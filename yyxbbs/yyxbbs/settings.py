@@ -144,11 +144,57 @@ DATABASES = {
         'OPTIONS': {
             'charset': 'utf8mb4',
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        }
+            'connect_timeout': 10,
+        },
+        #'CONN_MAX_AGE': 300,  # 连接保持时间（秒）
+        'CONN_HEALTH_CHECKS': True,
     }
 }
 
+# Redis 缓存配置
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",  # 使用1号数据库，避免与其它数据混用
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 100,  # 连接池大小
+                "retry_on_timeout": True,
+            },
+            "SOCKET_CONNECT_TIMEOUT": 5,  # 连接超时（秒）
+            "SOCKET_TIMEOUT": 5,  # 读写超时（秒）
+            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",  # 压缩存储
+            "IGNORE_EXCEPTIONS": True,  # Redis异常时不抛错，直接回退到数据库
+        },
+        "KEY_PREFIX": "yyxbbs",  # 缓存键前缀
+    },
+    "session": {  # 专门用于Session的Redis配置
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",  # 使用2号数据库专门存储Session
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 50,
+            },
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
+        },
+        "KEY_PREFIX": "yyxbbs_session",
+    }
+}
 
+# Session 配置 - 使用 Redis 存储
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "session"  # 使用上面配置的session缓存
+SESSION_COOKIE_AGE = 3600 #(1h) #1209600  # Session过期时间（2周，单位：秒）
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # 浏览器关闭时不过期
+SESSION_SAVE_EVERY_REQUEST = True  # 每次请求都保存Session，延长过期时间
+
+# 安全相关配置
+SESSION_COOKIE_SECURE = False  # 本地开发设为False，生产环境应设为True（HTTPS）
+SESSION_COOKIE_HTTPONLY = True  # 防止XSS读取Session
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF保护
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

@@ -16,3 +16,5 @@ openai==1.66.3
 requests==2.32.5
 locust==2.34.0
 django-debug-toolbar==6.0.0
+djando-redis==6.0.0
+redis==6.4.0
