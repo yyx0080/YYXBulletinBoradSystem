@@ -1,7 +1,7 @@
 from django.shortcuts import render,HttpResponse,redirect
 from BoardManagement import ormoperator
 from django.http import JsonResponse
-from .models import BoradInfo #这里其实是用不到的。记得注释掉
+from .models import BoardInfo #这里其实是用不到的。记得注释掉
 from django.core.paginator import Paginator
 import datetime
 import os
@@ -10,10 +10,10 @@ import os
 # 主界面，登录成功后调用这个接口
 def manage_board(request):
     # 这里将数据库中的数据取出来,传给前端展示即可
-    borad_info_list = ormoperator.GetBoradInfo()
+    board_info_list = ormoperator.GetBoardInfo()
 
     # 分页，每页显示 10 条评论
-    paginator = Paginator(borad_info_list, 10)  
+    paginator = Paginator(board_info_list, 10)  
     page_number = request.GET.get('page')  # 从 URL 获取当前页码
     page_obj = paginator.get_page(page_number)  # 获取当前页的数据
 
@@ -24,8 +24,8 @@ def manage_board(request):
 
 #到时候上线网站的时候要清理掉这些测试接口，测试接口会标明测试
 #测试接口
-def AddBoradInfoTest(request):
-    ormoperator.TestAddBoradInfo()
+def AddBoardInfoTest(request):
+    ormoperator.TestAddBoardInfo()
     return HttpResponse("添加成功")
 
 def submit_comment(request):
@@ -50,6 +50,6 @@ def submit_comment(request):
 #测试接口
 def show_richText(request):
     # 查询 test01 用户的发言记录
-    comments = BoradInfo.objects.filter(username='test07')
+    comments = BoardInfo.objects.filter(username='test07')
     # 将查询结果传递到模板中进行展示
     return render(request, 'display_comments.html', {'comments': comments})

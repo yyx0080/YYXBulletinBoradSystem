@@ -32,5 +32,5 @@ def create_test_users(count=100):
             print(f"用户已存在: {username}")
 
 if __name__ == "__main__":
-    create_test_users(100)
+    create_test_users(10000)
     print("测试用户创建完成")

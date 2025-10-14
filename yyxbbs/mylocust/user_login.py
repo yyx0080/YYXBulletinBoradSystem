@@ -53,7 +53,7 @@ class LoginUser(HttpUser):
         #     self.get_csrf_token("/login/")
         #     print("111", self.csrf_token)
         # 使用预定义的测试用户
-        user_id = random.randint(0, 99)
+        user_id = random.randint(0, 100) #2404
         username = f"testuser_{user_id}"
         password = f"Password123!{user_id}"
         

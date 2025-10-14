@@ -7,6 +7,18 @@ from Userlogin import ormoperator
 def index(request):
     return HttpResponse("欢迎使用YYXBBS1.0")
 
+# 登陆持久化对应跳转，已登录状态直接跳转留言板，否则回到登录页面
+def root_redirect(request):
+    """安全的根路径重定向（包含异常处理）"""
+    try:
+        if request.user.is_authenticated:
+            return redirect('/board/')
+        else:
+            return redirect('/login/')
+    except Exception as e:
+        # 发生异常时，保守地跳转到登录页
+        print(f"根路径跳转异常: {e}")
+        return redirect('/login/')
 
 #登录函数
 def login_view(req):

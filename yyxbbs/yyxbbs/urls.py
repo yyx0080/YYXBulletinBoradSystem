@@ -29,14 +29,15 @@ urlpatterns = [
     # url -> admin.site.urls这个函数
     path('admin/', admin.site.urls),
     # 这里要注意，最后一个结尾不能有“,”否则最后一个会找不到
-    path('', lambda request: redirect('/login/')),
+    #path('', lambda request: redirect('/login/')),
+    path('', UserloginViews.root_redirect),
     path('index/', UserloginViews.index),
     path('login/',UserloginViews.login_view),
     path('addtest/',UserloginViews.addtest), #测试接口
     path('register/',UserloginViews.register),
     path('board/',BoardManagementViews.manage_board),
     path('RichTextSubmit/',BoardManagementViews.submit_comment),
-    path('AddBoradInfoTest/',BoardManagementViews.AddBoradInfoTest), #测试接口
+    path('AddBoardInfoTest/',BoardManagementViews.AddBoardInfoTest), #测试接口
     path('ShowRichText/',BoardManagementViews.show_richText), #测试接口
     path('DailyAttendance/',DailyAttendanceViews.daily_attendance), # 渲染每日签到页面的接口
     path('DailyAttendanceClick/',DailyAttendanceViews.daily_attendance_click),
