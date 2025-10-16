@@ -4,9 +4,13 @@ from datetime import datetime
 
 
 # 取出所有留言，展示给前端
-def GetBoardInfo():
-    board_info_list = BoardInfo.objects.all().order_by('-board_date')  # 按日期降序排列
-    return board_info_list
+def GetBoardInfo(use_user_relation=False):
+    if use_user_relation:
+        # 需要用户详情时使用关联查询
+        return BoardInfo.objects.select_related('user').order_by('-board_date')
+    else:
+        # 普通列表使用，性能更优
+        return BoardInfo.objects.all().order_by('-board_date')
 
 # 测试函数，用来添加一些测试数据进去
 #测试接口
@@ -21,12 +25,13 @@ def TestAddBoardInfo():
     BoardInfo.objects.create(username="yyx", content="yyx 的留言有一些特殊字符 #$%@!", board_date=current_time, like_point=20, image_path='', type=1)
 
 #将用户评论添加到数据库中
-def AddUserComment(username, content):
+def AddUserComment(user, content):
     # 创建留言并保存到数据库
     current_time = datetime.now()  # 获取当前时间，秒级
     print(current_time)
     BoardInfo.objects.create(
-        username=username,  # 使用登录用户的用户名
+        username=user.name,  # 使用登录用户的用户名，保持兼容
+        user = user,
         content=content, 
         board_date=current_time, 
         like_point=0,

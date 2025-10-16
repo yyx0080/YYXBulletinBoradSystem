@@ -33,10 +33,10 @@ def submit_comment(request):
         content = request.POST.get('content')
         if request.user.is_authenticated:
             #获取当前用户名
-            username = request.user.name
-            print("name = ",username)
+            # username = request.user.name
+            # print("name = ",username)
             #调用数据库操作,向数据库内部添加数据
-            ormoperator.AddUserComment(username, content)
+            ormoperator.AddUserComment(request.user, content)
             #这里要返回上一层级
             return redirect('../board') #重定向到当前页面（作为刷新作用）
         else:
