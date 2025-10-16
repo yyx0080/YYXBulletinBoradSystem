@@ -53,11 +53,11 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
         return False
 
 
-#留言表
-class BoardInfo(models.Model):
-    username = models.CharField(max_length=32) #留言的用户
-    content = models.CharField(max_length=800) #最多写800字小作文
-    board_data = models.DateTimeField() #留言的时间
+# #留言表
+# class BoardInfo(models.Model):
+#     username = models.CharField(max_length=32) #留言的用户
+#     content = models.CharField(max_length=800) #最多写800字小作文
+#     board_data = models.DateTimeField() #留言的时间
 
 
 
