@@ -32,6 +32,13 @@ class BoardInfo(models.Model):
         indexes = [
             # models.Index(fields=['board_date', 'type']),
             models.Index(fields=['username', 'board_date']),
+            # 时间排序索引
+            models.Index(fields=['-board_date']),
+            models.Index(fields=['board_date']),
+            
+            # 点赞排序索引
+            models.Index(fields=['-like_point', '-board_date']),
+            models.Index(fields=['like_point', '-board_date']),
         ]
         ordering = ['-board_date']
     
