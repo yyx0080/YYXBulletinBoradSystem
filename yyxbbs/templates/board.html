@@ -37,6 +37,10 @@
             font-size: 0.8rem;
             color: #6c757d;
         }
+        .pagination-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
     </style>
     
     
@@ -136,9 +140,8 @@
             });
         </script>
         
-
-        <!-- 分页按钮 -->
-        <div class="pagination">
+        <!-- 分页按钮（页码版） -->
+        <!-- <div class="pagination">
             <span class="step-links">
                 {% if comments.has_previous %}
                     <a href="?page=1&sort={{ current_sort }}">&laquo; 第一页</a>
@@ -154,7 +157,39 @@
                     <a href="?page={{ comments.paginator.num_pages }}&sort={{ current_sort }}">最后一页 &raquo;</a>
                 {% endif %}
             </span>
-        </div>
+        </div> -->
+        <!-- 分页按钮（游标版） -->
+        <div class="pagination-section mt-4">
+            <!-- 分页按钮 -->
+            <div class="pagination-buttons d-flex justify-content-between">
+                <!-- 上一页 -->
+                <div>
+                    {% if pagination.has_prev %}
+                        <a href="?sort={{ current_sort }}&cursor={{ pagination.prev_cursor }}&direction=prev" 
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left"></i> 上一页
+                        </a>
+                    {% else %}
+                        <button class="btn btn-outline-secondary pagination-disabled" disabled>
+                            <i class="fas fa-arrow-left"></i> 上一页
+                        </button>
+                    {% endif %}
+                </div>
+                
+                <!-- 下一页 -->
+                <div>
+                    {% if pagination.has_next %}
+                        <a href="?sort={{ current_sort }}&cursor={{ pagination.next_cursor }}&direction=next" 
+                           class="btn btn-primary">
+                            下一页 <i class="fas fa-arrow-right"></i>
+                        </a>
+                    {% else %}
+                        <button class="btn btn-secondary pagination-disabled" disabled>
+                            下一页 <i class="fas fa-arrow-right"></i>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
     </div>
     
     <!-- Bootstrap 的 JS 文件 -->

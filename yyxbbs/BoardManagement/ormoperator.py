@@ -2,7 +2,10 @@ from django.db.models import F
 from BoardManagement.models import BoardInfo
 from datetime import datetime
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Count, Avg, Max, Min
+from django.db.models import Count, Avg, Max, Min, Q
+import json
+import base64
+from urllib.parse import quote, unquote
 #这里用来写数据库的操作
 
 def GetBoardInfo(sort_type='newest', use_user_relation=False):
@@ -37,28 +40,179 @@ def GetBoardInfo(sort_type='newest', use_user_relation=False):
     
     return queryset
 
-def GetBoardInfoPaginated(sort_type='newest', use_user_relation=False, page=1, page_size=10):
+def GetBoardInfoPaginated(sort_type='newest', use_user_relation=False, use_cursor=False, cursors=None, page=1, page_size=10, direction='next'):
     """
     获取分页的留言板信息
     
     Args:
         sort_type: 排序类型
         use_user_relation: 是否使用关联查询
+        use_cursor: 是否使用游标排序
+        cursors: 上一页最后一条记录的值字典，对应游标
         page: 页码
         page_size: 每页数量
+        direction: 分页方向 'next' 或 'prev'
     """
     
     queryset = GetBoardInfo(sort_type, use_user_relation)
-    paginator = Paginator(queryset, page_size)
+    if use_cursor == False:
+        paginator = Paginator(queryset, page_size)
+        
+        try:
+            page_obj = paginator.page(page)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+        
+        return page_obj
+    else:
+        if sort_type == 'newest':
+            if cursors:
+                # cursors = {'board_date': '2024-01-01 10:00:00'}
+                if direction == 'next':
+                    # 下一页：取比当前页最后一条记录更早的记录
+                    queryset = queryset.filter(board_date__lt=cursors['board_date'])
+                else:
+                    # 上一页：取比当前页第一条记录更晚的记录
+                    queryset = queryset.filter(board_date__gt=cursors['board_date'])
+                    # 上一页需要反转顺序，因为要的是比当前第一条记录更新的记录
+                    queryset = queryset.order_by('board_date')
+                
+        elif sort_type == 'oldest':
+            if cursors:
+                if direction == 'next':
+                    # 下一页：取比当前页最后一条记录更晚的记录
+                    queryset = queryset.filter(board_date__gt=cursors['board_date'])
+                else:
+                    # 上一页：取比当前页第一条记录更早的记录
+                    queryset = queryset.filter(board_date__lt=cursors['board_date'])
+                    queryset = queryset.order_by('-board_date')
+                
+        elif sort_type == 'most_likes':
+            if cursors:
+                if direction == 'next':
+                    # 下一页：取比当前页最后一条记录点赞更少或相同点赞但更早的记录
+                    queryset = queryset.filter(
+                        Q(like_point__lt=cursors['like_point']) |
+                        Q(like_point=cursors['like_point'], 
+                            board_date__lt=cursors['board_date'])
+                    )
+                else:
+                    # 上一页：取比当前页第一条记录点赞更多或相同点赞但更晚的记录
+                    queryset = queryset.filter(
+                        Q(like_point__gt=cursors['like_point']) |
+                        Q(like_point=cursors['like_point'], 
+                            board_date__gt=cursors['board_date'])
+                    )
+                    queryset = queryset.order_by('like_point', 'board_date')
+                
+        elif sort_type == 'least_likes':
+            if cursors:
+                if direction == 'next':
+                    # 下一页：取比当前页最后一条记录点赞更多或相同点赞但更晚的记录
+                    queryset = queryset.filter(
+                        Q(like_point__gt=cursors['like_point']) |
+                        Q(like_point=cursors['like_point'], 
+                            board_date__gt=cursors['board_date'])
+                    )
+                else:
+                    # 上一页：取比当前页第一条记录点赞更少或相同点赞但更早的记录
+                    queryset = queryset.filter(
+                        Q(like_point__lt=cursors['like_point']) |
+                        Q(like_point=cursors['like_point'], 
+                            board_date__lt=cursors['board_date'])
+                    )
+                    queryset = queryset.order_by('-like_point', '-board_date')
+
+        # 对于上一页，我们需要反转结果顺序（因为得到的数据是按照相反的排序方式得到的）
+        if direction == 'prev':
+            results = list(queryset[:page_size + 1])
+            # 反转结果，使其保持正确的排序顺序
+            results.reverse()
+            return results
+        else:
+            return list(queryset[:page_size + 1])
+
+def has_previous_page(sort_type, first_comment):
+    """
+    判断是否有上一页
+    """
+    queryset = BoardInfo.objects.all()
+    
+    if sort_type == 'newest':
+        # 是否有比当前页第一条记录更新的记录
+        return queryset.filter(board_date__gt=first_comment.board_date).exists()
+    elif sort_type == 'oldest':
+        # 是否有比当前页第一条记录更旧的记录
+        return queryset.filter(board_date__lt=first_comment.board_date).exists()
+    elif sort_type == 'most_likes':
+        # 是否有比当前页第一条记录点赞更多或相同点赞但更新的记录
+        return queryset.filter(
+            Q(like_point__gt=first_comment.like_point) |
+            Q(like_point=first_comment.like_point, 
+             board_date__gt=first_comment.board_date)
+        ).exists()
+    elif sort_type == 'least_likes':
+        # 是否有比当前页第一条记录点赞更少或相同点赞但更旧的记录
+        return queryset.filter(
+            Q(like_point__lt=first_comment.like_point) |
+            Q(like_point=first_comment.like_point, 
+             board_date__lt=first_comment.board_date)
+        ).exists()
+    
+    return False
+
+def create_keyset_cursor(instance, sort_type):
+    """
+    创建键集游标
+    返回一个包含排序字段值的字典
+    """
+    cursor_data = {}
+    
+    if sort_type in ['newest', 'oldest']:
+        cursor_data['board_date'] = instance.board_date.isoformat()
+    elif sort_type in ['most_likes', 'least_likes']:
+        cursor_data['like_point'] = instance.like_point
+        cursor_data['board_date'] = instance.board_date.isoformat()
+    
+    return cursor_data
+
+def serialize_cursor(cursor_data):
+    """
+    安全序列化游标 - 使用JSON + Base64编码
+    """
+    if not cursor_data:
+        return None
     
     try:
-        page_obj = paginator.page(page)
-    except PageNotAnInteger:
-        page_obj = paginator.page(1)
-    except EmptyPage:
-        page_obj = paginator.page(paginator.num_pages)
+        # 将字典转换为JSON字符串
+        json_str = json.dumps(cursor_data)
+        # Base64编码，避免URL特殊字符问题
+        encoded = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+        # URL编码，确保安全传输
+        return quote(encoded)
+    except Exception as e:
+        print(f"游标序列化错误: {e}")
+        return None
+
+def deserialize_cursor(cursor_str):
+    """
+    安全反序列化游标
+    """
+    if not cursor_str:
+        return None
     
-    return page_obj
+    try:
+        # URL解码
+        decoded = unquote(cursor_str)
+        # Base64解码
+        json_str = base64.b64decode(decoded).decode('utf-8')
+        # JSON解析
+        return json.loads(json_str)
+    except Exception as e:
+        print(f"游标反序列化错误: {e}, 游标字符串: {cursor_str}")
+        return None
 
 def GetBoardStats():
     """获取留言板统计信息"""

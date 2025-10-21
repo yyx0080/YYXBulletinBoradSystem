@@ -11,32 +11,104 @@ def manage_board(request):
     """留言板视图 - 使用ormoperator解耦数据库操作"""
     # 获取参数
     sort_type = request.GET.get('sort', 'newest')
-    page_number = request.GET.get('page', 1)
+    use_cursor=True # 是否使用游标分页
+    if use_cursor == False:
+        page_number = request.GET.get('page', 1)
     
-    # 使用ormoperator获取分页数据
-    page_obj = ormoperator.GetBoardInfoPaginated(
-        sort_type=sort_type,
-        use_user_relation=False,  # 是否需要用户详情
-        page=page_number,
-        page_size=10
-    )
-    
-    # 获取统计信息（可选）
-    # stats = ormoperator.GetBoardStats()
-    
-    context = {
-        'comments': page_obj,
-        'current_sort': sort_type,
-        'sort_options': [
-            {'value': 'newest', 'label': '最新发布', 'icon': 'fas fa-clock'},
-            {'value': 'oldest', 'label': '最早发布', 'icon': 'fas fa-history'},
-            {'value': 'most_likes', 'label': '最多点赞', 'icon': 'fas fa-thumbs-up'},
-            {'value': 'least_likes', 'label': '最少点赞', 'icon': 'fas fa-thumbs-down'},
-        ],
-        # 'stats': stats,
-    }
-    
-    return render(request, 'board.html', context)
+        # 使用ormoperator获取分页数据
+        page_obj = ormoperator.GetBoardInfoPaginated(
+            sort_type=sort_type,
+            use_user_relation=False,  # 是否需要用户详情
+            use_cursor=use_cursor,
+            cursors=None,
+            page=page_number,
+            page_size=10
+        )
+        
+        # 获取统计信息（可选）
+        # stats = ormoperator.GetBoardStats()
+        
+        context = {
+            'comments': page_obj,
+            'current_sort': sort_type,
+            'sort_options': [
+                {'value': 'newest', 'label': '最新发布', 'icon': 'fas fa-clock'},
+                {'value': 'oldest', 'label': '最早发布', 'icon': 'fas fa-history'},
+                {'value': 'most_likes', 'label': '最多点赞', 'icon': 'fas fa-thumbs-up'},
+                {'value': 'least_likes', 'label': '最少点赞', 'icon': 'fas fa-thumbs-down'},
+            ],
+            # 'stats': stats,
+        }
+        
+        return render(request, 'board.html', context)
+    else:
+        cursor_str = request.GET.get('cursor')
+        direction = request.GET.get('direction', 'next')  # next 或 prev
+        page_size = 10
+        # 反序列化游标
+        cursors = ormoperator.deserialize_cursor(cursor_str) if cursor_str else None
+        
+        # 使用ormoperator获取分页数据
+        comments = ormoperator.GetBoardInfoPaginated(
+            sort_type=sort_type,
+            use_user_relation=False,  # 是否需要用户详情
+            use_cursor=use_cursor,
+            cursors=cursors,
+            page=1,
+            page_size=10,
+            direction=direction
+        )
+        # 判断是否有下一页
+        if direction == 'next':
+            has_next = len(comments) > page_size # 点击下一页来的，根据能不能多取一条判断是否有下一页
+        else: # 'prev'
+            has_next = True # 点击上一页来的，一定有下一页
+        if has_next:
+            comments = comments[:page_size]  # 去掉多余的一条
+        
+        # 判断是否有上一页
+        has_prev = False
+        if comments:
+            if direction == 'next':
+                # 对于下一页查询，如果有游标就有上一页
+                has_prev = cursors is not None
+            else:  # prev
+                # 对于上一页查询，需要检查是否有更早的记录
+                has_prev = ormoperator.has_previous_page(sort_type, comments[0])
+
+        # 生成分页信息
+        pagination = {
+            'has_prev': has_prev,
+            'has_next': has_next,
+        }
+        # 生成游标
+        if comments:
+            if has_next:
+                last_comment = comments[-1]
+                next_cursor_data = ormoperator.create_keyset_cursor(last_comment, sort_type)
+                pagination['next_cursor'] = ormoperator.serialize_cursor(next_cursor_data)
+            
+            if has_prev:  # 如果有上一页
+                first_comment = comments[0]
+                prev_cursor_data = ormoperator.create_keyset_cursor(first_comment, sort_type)
+                pagination['prev_cursor'] = ormoperator.serialize_cursor(prev_cursor_data)
+        # 获取统计信息（可选）
+        # stats = ormoperator.GetBoardStats()
+        
+        context = {
+            'comments': comments,
+            'current_sort': sort_type,
+            'pagination': pagination,
+            'sort_options': [
+                {'value': 'newest', 'label': '最新发布', 'icon': 'fas fa-clock'},
+                {'value': 'oldest', 'label': '最早发布', 'icon': 'fas fa-history'},
+                {'value': 'most_likes', 'label': '最多点赞', 'icon': 'fas fa-thumbs-up'},
+                {'value': 'least_likes', 'label': '最少点赞', 'icon': 'fas fa-thumbs-down'},
+            ],
+            # 'stats': stats,
+        }
+        
+        return render(request, 'board.html', context)
 # def manage_board(request):
 #     # 这里将数据库中的数据取出来,传给前端展示即可
 #     board_info_list = ormoperator.GetBoardInfo()
