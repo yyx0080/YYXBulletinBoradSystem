@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>title</title>
+    <title>
+        {% if is_own_profile %}
+            个人信息 - 普通的留言板
+        {% else %}
+            {{ profile.name }} 的个人信息 - 普通的留言板
+        {% endif %}
+    </title>
+    {% load static %}
     <!-- 开发版本 -->
-    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
     <!-- 生产版本 -->
     <!-- <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css"> -->
     <!-- 设置背景颜色 -->
@@ -12,16 +19,17 @@
     <!--导入字体的css-->
     <link herf="../static/bootstrap/css/myfont.css" rel="stylesheet">
     <!-- 导入导航栏文件 -->
-    <link rel="stylesheet" href="../static/bootstrap/css/navstyle.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/navstyle.css' %}">
     <!-- 导入富文本编辑器 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <!-- 导入浮动评论区样式css -->
-    <link rel="stylesheet" href="../static/bootstrap/css/commentfloat.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/commentfloat.css' %}">
+    <!-- 用户信息页自定义样式 -->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/userinfo.css' %}">
 
-
-    <style>
+    <!-- <style>
         /* 自定义 CSS，使签到框在页面中间居中显示 */
         .userinfo-box {
             max-width: 500px;      /* 设置签到框的最大宽度 */
@@ -32,7 +40,7 @@
             background-color: #f9f9f9; /* 背景色 */
             text-align: center;    /* 内容居中对齐 */
         }
-    </style>
+    </style> -->
 
 
 </head>
@@ -57,20 +65,390 @@
         </div>
     </nav>
 
-    <div class="container">
-        <!-- 用户信息框 -->
-        <div class="userinfo-box">
-            <h2>用户信息：</h2>
-            <p>用户名: {{ username }}</p>
-            <p>最近一次签到日期: {{ last_attendance_date }}</p>
-            <p>积分: {{ point }}</p>
+    <div class="container userinfo-container">
+        <!-- 用户资料卡片 -->
+        <div class="user-profile-card">
+            <div class="profile-header">
+                <div class="user-avatar">
+                    {{ profile.name|first|upper }}
+                </div>
+                <h1 class="user-name">{{ profile.name }}</h1>
+                <p class="user-bio">
+                    {% if is_own_profile %}
+                        欢迎来到我的个人空间
+                    {% else %}
+                        欢迎来到 {{ profile.name }} 的个人空间
+                    {% endif %}
+                </p>
+                
+                {% if is_own_profile %}
+                <div class="profile-actions">
+                    <button onclick="refreshCache()" class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-sync-alt"></i> 刷新数据
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            <div class="user-stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ stats.total_comments }}</span>
+                    <span class="stat-label">留言数</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ profile.point }}</span>
+                    <span class="stat-label">积分</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ profile.total_likes }}</span>
+                    <span class="stat-label">总获赞</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 排名卡片 -->
+        <div class="ranking-cards">
+            <div class="ranking-card like-ranking">
+                <div class="ranking-icon">
+                    <i class="fas fa-thumbs-up"></i>
+                </div>
+                <div class="ranking-title">点赞排名</div>
+                <div class="ranking-value">#{{ user_ranks.like_rank }}</div>
+                <div class="ranking-label">全站排名</div>
+            </div>
+            
+            <div class="ranking-card point-ranking">
+                <div class="ranking-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="ranking-title">积分排名</div>
+                <div class="ranking-value">#{{ user_ranks.point_rank }}</div>
+                <div class="ranking-label">全站排名</div>
+            </div>
+            
+            <div class="ranking-card combined-ranking">
+                <div class="ranking-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="ranking-title">综合排名</div>
+                <div class="ranking-value">#{{ user_ranks.combined_rank }}</div>
+                <div class="ranking-label">全站排名</div>
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.avg_likes_per_comment|floatformat:1 }}</div>
+                <div class="stat-label">平均每篇获赞</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_likes_received }}</div>
+                <div class="stat-label">留言总获赞</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    {% if profile.last_attendance_date %}
+                        {{ profile.last_attendance_date }}
+                    {% else %}
+                        未签到
+                    {% endif %}
+                </div>
+                <div class="stat-label">最后签到</div>
+            </div>
+        </div>
+
+        <!-- 标签页内容 -->
+        <div class="info-tabs">
+            <div class="tabs-header">
+                <button class="tab-button {% if active_tab == 'info' %}active{% endif %}" 
+                        onclick="switchTab('info')">
+                    <i class="fas fa-info-circle"></i> 基本信息
+                </button>
+                <button class="tab-button {% if active_tab == 'comments' %}active{% endif %}" 
+                        onclick="switchTab('comments')">
+                    <i class="fas fa-comments"></i> 留言详情
+                </button>
+                <button class="tab-button {% if active_tab == 'stats' %}active{% endif %}" 
+                        onclick="switchTab('stats')">
+                    <i class="fas fa-chart-bar"></i> 数据统计
+                </button>
+            </div>
+            
+            <div class="tab-content">
+                <!-- 基本信息标签页 -->
+                <div id="info-tab" class="tab-pane {% if active_tab == 'info' %}active{% endif %}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4><i class="fas fa-user"></i> 账户信息</h4>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>用户名:</strong></td>
+                                    <td>
+                                        {{ profile.name }}
+                                        {% if is_own_profile %}
+                                        <span class="badge badge-success ml-2">本人</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>注册时间:</strong></td>
+                                    <td>{{ profile.login_date }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>最后登录:</strong></td>
+                                    <td>
+                                        {% if profile.last_login_date %}
+                                            {{ profile.last_login_date }}
+                                        {% else %}
+                                            首次登录
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h4><i class="fas fa-award"></i> 成就信息</h4>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>当前积分:</strong></td>
+                                    <td><span class="text-warning">{{ profile.point }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>总获赞数:</strong></td>
+                                    <td><span class="text-danger">{{ profile.total_likes }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>留言数量:</strong></td>
+                                    <td><span class="text-info">{{ stats.total_comments }}</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        {% if is_own_profile %}
+                            <a href="/DailyAttendance" class="btn btn-primary">
+                                <i class="fas fa-calendar-check"></i> 每日签到
+                            </a>
+                        {% endif %}
+                        <a href="/ranking" class="btn btn-outline-primary">
+                            <i class="fas fa-trophy"></i> 查看完整排行榜
+                        </a>
+                        {% if not is_own_profile %}
+                            <a href="/board" class="btn btn-outline-success">
+                                <i class="fas fa-comment"></i> 给 {{ profile.name }} 留言
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- 留言详情标签页 -->
+                <div id="comments-tab" class="tab-pane {% if active_tab == 'comments' %}active{% endif %}">
+                    <h4 class="mb-4">
+                        {% if is_own_profile %}
+                            我的留言
+                        {% else %}
+                            {{ profile.name }} 的留言
+                        {% endif %}
+                        ({{ stats.total_comments }}条)
+                    </h4>
+                    
+                    {% if comments %}
+                        <div class="comment-list">
+                            {% for comment in comments %}
+                                <div class="comment-item">
+                                    <div class="comment-header">
+                                        <span class="comment-date">
+                                            <i class="far fa-clock"></i>
+                                            {{ comment.board_date|date:"Y-m-d H:i" }}
+                                        </span>
+                                        <span class="comment-likes">
+                                            <i class="fas fa-heart"></i> {{ comment.like_point }}
+                                        </span>
+                                    </div>
+                                    <div class="comment-content">
+                                        {{ comment.content|safe }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- 分页 -->
+                        {% if pagination.total_pages > 1 %}
+                        <nav aria-label="留言分页" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if pagination.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?tab=comments&page={{ pagination.current_page|add:'-1' }}">上一页</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">上一页</span>
+                                    </li>
+                                {% endif %}
+                                
+                                <li class="page-item active">
+                                    <span class="page-link">
+                                        第 {{ pagination.current_page }} 页 / 共 {{ pagination.total_pages }} 页
+                                    </span>
+                                </li>
+                                
+                                {% if pagination.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?tab=comments&page={{ pagination.current_page|add:'1' }}">下一页</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">下一页</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="far fa-comment-dots"></i>
+                            <h4>还没有留言</h4>
+                            <p>
+                                {% if is_own_profile %}
+                                    快去留言板发表你的第一条留言吧！
+                                {% else %}
+                                    {{ profile.name }} 还没有发表过留言
+                                {% endif %}
+                            </p>
+                            {% if is_own_profile %}
+                            <a href="/board" class="btn btn-primary">
+                                <i class="fas fa-pencil-alt"></i> 去留言
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- 数据统计标签页 -->
+                <div id="stats-tab" class="tab-pane {% if active_tab == 'stats' %}active{% endif %}">
+                    <h4 class="mb-4">数据统计</h4>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> 活跃度统计</h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-striped">
+                                        <tr>
+                                            <td>留言总数</td>
+                                            <td class="text-end">{{ stats.total_comments }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>总获赞数</td>
+                                            <td class="text-end">{{ stats.total_likes_received }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>平均每篇获赞</td>
+                                            <td class="text-end">{{ stats.avg_likes_per_comment|floatformat:1 }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>当前积分</td>
+                                            <td class="text-end">{{ profile.point }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0"><i class="fas fa-trophy"></i> 排名统计</h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-striped">
+                                        <tr>
+                                            <td>点赞排名</td>
+                                            <td class="text-end">第 {{ user_ranks.like_rank }} 名</td>
+                                        </tr>
+                                        <tr>
+                                            <td>积分排名</td>
+                                            <td class="text-end">第 {{ user_ranks.point_rank }} 名</td>
+                                        </tr>
+                                        <tr>
+                                            <td>综合排名</td>
+                                            <td class="text-end">第 {{ user_ranks.combined_rank }} 名</td>
+                                        </tr>
+                                        <tr>
+                                            <td>最后签到</td>
+                                            <td class="text-end">
+                                                {% if profile.last_attendance_date %}
+                                                    {{ profile.last_attendance_date }}
+                                                {% else %}
+                                                    未签到
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-lightbulb"></i> 提升建议</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                {% if stats.total_comments == 0 %}
+                                    <li><i class="fas fa-exclamation-circle text-warning"></i> 
+                                        {% if is_own_profile %}
+                                            您还没有发表过留言，快去留言板分享您的想法吧！
+                                        {% else %}
+                                            {{ profile.name }} 还没有发表过留言
+                                        {% endif %}
+                                    </li>
+                                {% elif stats.avg_likes_per_comment < 1 %}
+                                    <li><i class="fas fa-lightbulb text-info"></i> 
+                                        {% if is_own_profile %}
+                                            尝试发表更有深度的内容，吸引更多点赞
+                                        {% else %}
+                                            {{ profile.name }} 的内容很有潜力，继续加油！
+                                        {% endif %}
+                                    </li>
+                                {% endif %}
+                                
+                                {% if not profile.last_attendance_date and is_own_profile %}
+                                    <li><i class="fas fa-calendar-plus text-success"></i> 每日签到可以获取积分，提升您的排名</li>
+                                {% endif %}
+                                
+                                {% if user_ranks.combined_rank > 50 %}
+                                    <li><i class="fas fa-rocket text-primary"></i> 
+                                        {% if is_own_profile %}
+                                            继续努力，您已经进入了前{{ user_ranks.combined_rank }}名！
+                                        {% else %}
+                                            {{ profile.name }} 已经进入了前{{ user_ranks.combined_rank }}名！
+                                        {% endif %}
+                                    </li>
+                                {% else %}
+                                    <li><i class="fas fa-crown text-warning"></i> 
+                                        {% if is_own_profile %}
+                                            恭喜！您已经进入了前50名！
+                                        {% else %}
+                                            恭喜！{{ profile.name }} 已经进入了前50名！
+                                        {% endif %}
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-
-
+    <script src="{% static 'bootstrap/js/userinfo.js' %}"></script>
     <!-- Bootstrap 的 JS 文件 -->
-    <script src="../static/bootstrap/js/bootstrap.js"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
     
     <div style="text-align: center; margin-top: 20px;">
         <a href="https://beian.miit.gov.cn/" target="_blank">备案号：闽ICP备2024029524号-2</a>

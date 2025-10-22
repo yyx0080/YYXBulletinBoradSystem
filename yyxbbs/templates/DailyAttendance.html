@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>title</title>
+    {% load static %}
     <!-- 开发版本 -->
-    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
     <!-- 生产版本 -->
     <!-- <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css"> -->
     <!-- 设置背景颜色 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--导入字体的css-->
-    <link herf="../static/bootstrap/css/myfont.css" rel="stylesheet">
+    <link herf="{% static 'bootstrap/css/myfont.css' %}" rel="stylesheet">
     <!-- 导入导航栏文件 -->
-    <link rel="stylesheet" href="../static/bootstrap/css/navstyle.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/navstyle.css' %}">
     <!-- 导入富文本编辑器 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <!-- 导入浮动评论区样式css -->
-    <link rel="stylesheet" href="../static/bootstrap/css/commentfloat.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/commentfloat.css' %}">
     <!-- 引入 Bootstrap 样式 -->
-    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
 
     <style>
         /* 自定义 CSS，使签到框在页面中间居中显示 */

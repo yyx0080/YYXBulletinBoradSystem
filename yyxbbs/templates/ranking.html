@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>排行榜 - 普通的留言板</title>
-    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
-    <link rel="stylesheet" href="../static/bootstrap/css/navstyle.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/navstyle.css' %}">
     <style>
         .ranking-container {
             margin-top: 80px;
@@ -102,13 +103,21 @@
                         <table class="table table-hover mb-0">
                             <tbody>
                                 {% for user in like_ranking %}
-                                <tr class="{% if user.id == request.user.id %}current-user-row{% endif %}">
+                                <tr class="{% if user.name == request.user.name %}current-user-row{% endif %}">
                                     <td class="text-center" style="width: 60px;">
                                         <div class="rank-badge {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-other{% endif %}">
                                             {{ forloop.counter }}
                                         </div>
                                     </td>
-                                    <td>{{ user.name }}</td>
+                                    <td>
+                                        <a href="{% url 'public_user_info' user.name %}" 
+                                        class="user-link">
+                                            {{ user.name }}
+                                        </a>
+                                        {% if user.name == request.user.name %}
+                                        <span class="badge badge-primary ml-2">我</span>
+                                        {% endif %}
+                                    </td>
                                     <td class="text-right text-success">
                                         <strong>{{ user.total_likes }}</strong>
                                         <small>赞</small>
@@ -138,7 +147,15 @@
                                             {{ forloop.counter }}
                                         </div>
                                     </td>
-                                    <td>{{ user.name }}</td>
+                                    <td>
+                                        <a href="{% url 'public_user_info' user.name %}" 
+                                        class="user-link">
+                                            {{ user.name }}
+                                        </a>
+                                        {% if user.name == request.user.name %}
+                                        <span class="badge badge-primary ml-2">我</span>
+                                        {% endif %}
+                                    </td>
                                     <td class="text-right text-warning">
                                         <strong>{{ user.point }}</strong>
                                         <small>分</small>
@@ -168,7 +185,15 @@
                                             {{ forloop.counter }}
                                         </div>
                                     </td>
-                                    <td>{{ user.name }}</td>
+                                    <td>
+                                        <a href="{% url 'public_user_info' user.name %}" 
+                                        class="user-link">
+                                            {{ user.name }}
+                                        </a>
+                                        {% if user.name == request.user.name %}
+                                        <span class="badge badge-primary ml-2">我</span>
+                                        {% endif %}
+                                    </td>
                                     <td class="text-right text-primary">
                                         <strong>{{ user.total_likes|add:user.point }}</strong>
                                         <small>总分</small>

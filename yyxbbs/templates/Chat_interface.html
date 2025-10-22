@@ -5,17 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeepSeek 对话助手</title>
+    {% load static %}
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
     
     <!-- Font Awesome 图标 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- 导入导航栏文件 -->
-    <link rel="stylesheet" href="../static/bootstrap/css/navstyle.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/navstyle.css' %}">
 
     <!-- 自定义样式 -->
-    <link rel="stylesheet" href="../static/bootstrap/css/deepseek_style.css">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/deepseek_style.css' %}">
 
     <style>
         /* 保持之前的CSS样式不变 */

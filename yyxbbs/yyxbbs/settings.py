@@ -246,7 +246,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #bootstrap路径
 STATIC_URL = '/static/'
 STATICFILES_DIRS = ( os.path.join('static'), )
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # DeepSeek相关
 DEEPSEEK_API_KEY = "sk-e0894fd69b924b6f9fc4d501ca360f6b"

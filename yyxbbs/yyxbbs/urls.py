@@ -43,6 +43,9 @@ urlpatterns = [
     path('DailyAttendance/',DailyAttendanceViews.daily_attendance), # 渲染每日签到页面的接口
     path('DailyAttendanceClick/',DailyAttendanceViews.daily_attendance_click),
     path('PersonInfo/',PersonInfoViews.get_person_info),
+    path('refresh_cache/', PersonInfoViews.refresh_user_cache, name='refresh_cache'),
+    path('search/', PersonInfoViews.user_search_api, name='user_search'),
+    path('PersonInfo/<str:username>/', PersonInfoViews.public_user_info, name='public_user_info'),
     # path('DeepSeek/',DeepSeekViews.deep_seek),
     path('DeepSeekChat/', DeepSeekViews.deepseek_chat, name='deepseek_chat'),
     # API端点
@@ -64,5 +67,6 @@ if settings.DEBUG:
     urlpatterns = [
         path('__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

@@ -31,6 +31,7 @@ class BoardInfo(models.Model):
     class Meta:
         indexes = [
             # models.Index(fields=['board_date', 'type']),
+            models.Index(fields=['user', '-board_date']),
             models.Index(fields=['username', 'board_date']),
             # 时间排序索引
             models.Index(fields=['-board_date']),
