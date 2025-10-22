@@ -27,6 +27,7 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=32, unique=True)  # 确保用户名唯一
     password = models.CharField(max_length=128)  # 使用较大的字段以存储哈希后的密码
     point = models.IntegerField(default=0)  # 积分，默认为0
+    total_likes = models.IntegerField(default=0)  # 新增：总点赞量
     last_login_date = models.DateTimeField(null=True, blank=True)  # 最后一次登录时间
     login_date = models.DateField(auto_now_add=True)  # 注册日期，自动添加日期
     last_attendance_date = models.DateField(null=True, blank=True) # 最后签到日期
@@ -34,6 +35,16 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True)  # 用户是否激活
     is_staff = models.BooleanField(default=False)  # 是否为管理员
+
+    class Meta:
+        indexes = [
+            # 为排行榜查询优化
+            models.Index(fields=['-total_likes', '-point']),  # 综合排名
+            models.Index(fields=['-total_likes']),  # 点赞排名
+            models.Index(fields=['-point']),  # 积分排名
+            models.Index(fields=['is_active', '-total_likes']),  # 活跃用户排名
+            models.Index(fields=['is_active', '-point']),
+        ]
 
     # 指定用于身份验证的字段
     USERNAME_FIELD = 'name'  # 用户的唯一标识符

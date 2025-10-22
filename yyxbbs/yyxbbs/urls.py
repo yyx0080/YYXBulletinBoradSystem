@@ -22,6 +22,7 @@ from BoardManagement import views as BoardManagementViews
 from DailyAttendance import views as DailyAttendanceViews
 from DeepSeek import views as DeepSeekViews
 from PersonInfo import views as PersonInfoViews
+from Ranking import views as RankingViews
 from django.conf.urls.static import static
 from django.conf import settings
 #URL和py函数的对应关系，都写在这里
@@ -52,7 +53,9 @@ urlpatterns = [
          DeepSeekViews.conversation_messages_api, name='conversation_messages_api'),
     path('conversation/delete/<int:conversation_id>/', 
          DeepSeekViews.delete_conversation_view, name='delete_conversation'),
-
+    path('ranking', RankingViews.ranking_board, name='ranking_board'),
+    path('api/<str:ranking_type>/', RankingViews.ranking_api, name='ranking_api'),
+    path('api/my_ranking/', RankingViews.my_ranking_api, name='my_ranking_api'),
     
 ]
 

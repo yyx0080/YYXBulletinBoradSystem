@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     'Userlogin.apps.UserloginConfig',
     'BoardManagement.apps.BoardmanagementConfig',
     'DailyAttendance.apps.DailyattendanceConfig',
-    'DeepSeek.apps.DeepseekConfig'
+    'DeepSeek.apps.DeepseekConfig',
+    'Ranking.apps.RankingConfig'
 
 ]
 

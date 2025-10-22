@@ -3,6 +3,7 @@ from DailyAttendance import ormoperator
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib import messages
+from Ranking.ormoperator import clear_ranking_cache
 
 
 # @login_required保证这个接口只能由登录的用户来调用
@@ -25,6 +26,8 @@ def daily_attendance_click(request):
     else:
         # 签到成功，更新数据库
         point = ormoperator.UpdateUserDailyAttendanceData(username, today)
+        # 清除排行榜缓存
+        clear_ranking_cache()
         messages.success(request, "签到成功，获得积分：" + str(point))
     return render(request, 'DailyAttendance.html')
 
