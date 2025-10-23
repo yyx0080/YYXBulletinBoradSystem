@@ -40,6 +40,9 @@ class BoardInfo(models.Model):
             # 点赞排序索引
             models.Index(fields=['-like_point', '-board_date']),
             models.Index(fields=['like_point', '-board_date']),
+
+            # 为搜索功能添加索引，复合索引，提高搜索+排序性能
+            models.Index(fields=['username', '-board_date']),
         ]
         ordering = ['-board_date']
     

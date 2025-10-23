@@ -1,6 +1,7 @@
 from django.shortcuts import render,HttpResponse,redirect
 from BoardManagement import ormoperator
 from django.http import JsonResponse
+from django.db.models import Q
 from .models import BoardInfo #这里其实是用不到的。记得注释掉
 import datetime
 import os
@@ -11,7 +12,8 @@ def manage_board(request):
     """留言板视图 - 使用ormoperator解耦数据库操作"""
     # 获取参数
     sort_type = request.GET.get('sort', 'newest')
-    use_cursor=True # 是否使用游标分页
+    search_query = request.GET.get('q', '').strip()  # 搜索关键词
+    use_cursor=not bool(search_query)  # 有搜索时使用普通分页，无搜索时使用游标分页
     if use_cursor == False:
         page_number = request.GET.get('page', 1)
     
@@ -22,7 +24,8 @@ def manage_board(request):
             use_cursor=use_cursor,
             cursors=None,
             page=page_number,
-            page_size=10
+            page_size=10,
+            search_query=search_query  # 新增搜索参数
         )
         
         # 获取统计信息（可选）
@@ -31,6 +34,7 @@ def manage_board(request):
         context = {
             'comments': page_obj,
             'current_sort': sort_type,
+            'search_query': search_query,
             'sort_options': [
                 {'value': 'newest', 'label': '最新发布', 'icon': 'fas fa-clock'},
                 {'value': 'oldest', 'label': '最早发布', 'icon': 'fas fa-history'},

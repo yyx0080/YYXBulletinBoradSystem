@@ -8,7 +8,7 @@ import base64
 from urllib.parse import quote, unquote
 #这里用来写数据库的操作
 
-def GetBoardInfo(sort_type='newest', use_user_relation=False):
+def GetBoardInfo(sort_type='newest', use_user_relation=False, search_query=None):
     """
     获取留言板信息，支持多种排序方式
     
@@ -22,6 +22,14 @@ def GetBoardInfo(sort_type='newest', use_user_relation=False):
     else:
         queryset = BoardInfo.objects.all()
     
+    # 搜索功能
+    if search_query:
+        # 使用Q对象进行多字段搜索
+        queryset = queryset.filter(
+            Q(content__icontains=search_query) |
+            Q(username__icontains=search_query)
+        )
+
     # 应用排序
     sort_mapping = {
         'newest': '-board_date',
@@ -40,7 +48,8 @@ def GetBoardInfo(sort_type='newest', use_user_relation=False):
     
     return queryset
 
-def GetBoardInfoPaginated(sort_type='newest', use_user_relation=False, use_cursor=False, cursors=None, page=1, page_size=10, direction='next'):
+def GetBoardInfoPaginated(sort_type='newest', use_user_relation=False, use_cursor=False,
+                           cursors=None, page=1, page_size=10, direction='next', search_query=None):
     """
     获取分页的留言板信息
     
@@ -54,7 +63,7 @@ def GetBoardInfoPaginated(sort_type='newest', use_user_relation=False, use_curso
         direction: 分页方向 'next' 或 'prev'
     """
     
-    queryset = GetBoardInfo(sort_type, use_user_relation)
+    queryset = GetBoardInfo(sort_type, use_user_relation, search_query)
     if use_cursor == False:
         paginator = Paginator(queryset, page_size)
         
@@ -214,10 +223,16 @@ def deserialize_cursor(cursor_str):
         print(f"游标反序列化错误: {e}, 游标字符串: {cursor_str}")
         return None
 
-def GetBoardStats():
-    """获取留言板统计信息"""
-    
-    stats = BoardInfo.objects.aggregate(
+def GetBoardStats(search_query=None):
+    """获取留言板统计信息 - 支持搜索"""
+    if search_query:
+        queryset = BoardInfo.objects.filter(
+            Q(content__icontains=search_query) |
+            Q(username__icontains=search_query)
+        )
+    else:
+        queryset = BoardInfo.objects.all()
+    stats = queryset.aggregate(
         total_count=Count('id'),
         avg_likes=Avg('like_point'),
         max_likes=Max('like_point'),

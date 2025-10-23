@@ -22,18 +22,18 @@
     <link rel="stylesheet" href="{% static 'bootstrap/css/commentfloat.css' %}">
 
     <style>
-    .user-link {
-        color: #3498db;
-        text-decoration: none;
-        transition: color 0.3s ease;
-        font-weight: 500;
-    }
+        .user-link {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+        }
 
-    .user-link:hover {
-        color: #2980b9;
-        text-decoration: underline;
-        transform: translateY(-1px);
-    }
+        .user-link:hover {
+            color: #2980b9;
+            text-decoration: underline;
+            transform: translateY(-1px);
+        }
     </style>
 
     <style>
@@ -42,12 +42,33 @@
             padding: 15px;
             border-radius: 8px;
             border: 1px solid #dee2e6;
+            margin-bottom: 20px;
         }
         .sort-btn {
             margin: 2px;
         }
         .sort-btn.active {
             font-weight: bold;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .search-results-info {
+            background: #e9f7fe;
+            border-left: 4px solid #3498db;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
         }
         .debug-info {
             font-size: 0.8rem;
@@ -84,6 +105,28 @@
     
      <!-- 需要做成一块一块的评论 -->
     <div class="container" style="margin-top: 60px;">
+        <!-- 搜索框 -->
+        <div class="search-box">
+            <form method="get" class="form-inline">
+                <div class="input-group" style="width: 100%;">
+                    <input type="text" name="q" class="form-control" 
+                           placeholder="搜索留言内容或用户名..." 
+                           value="{{ search_query|default:'' }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> 搜索
+                        </button>
+                        {% if search_query %}
+                        <a href="?sort={{ current_sort }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> 清除
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- 隐藏字段保持排序 -->
+                <input type="hidden" name="sort" value="{{ current_sort }}">
+            </form>
+        </div>
         <!-- 添加排序选择器，包括最新、最晚、最多点赞、最少点赞四种排序方式 -->
         <div class="sorting-options">
             <h5><i class="fas fa-sort"></i> 排序方式</h5>
@@ -99,41 +142,75 @@
                 {% endfor %}
             </div>
         </div>
+        <!-- 搜索结果信息 -->
+        {% if search_query %}
+        <div class="search-results-info">
+            <i class="fas fa-search"></i> 
+            搜索 "<strong>{{ search_query }}</strong>" 的结果
+            {% if comments.paginator %}
+                （共 {{ comments.paginator.count }} 条记录）
+            {% endif %}
+        </div>
+        {% endif %}
+
         <div class="row">
             <!-- 遍历留言并展示 -->
-            {% for comment in comments %}
-                <div class="col-md-12">
-                    <div class="panel panel-default">
-                        <!-- 用户名跳转信息页 -->
-                        <div class="panel-heading">
-                            <h4>
-                                {% if comment.username %}
-                                    <a href="{% url 'public_user_info' comment.username %}" 
-                                    class="user-link" 
-                                    title="查看用户信息">
-                                        {{ comment.username }}
-                                    </a>
-                                {% else %}
-                                    匿名用户
-                                {% endif %}
-                            </h4>
-                            <p>{{ comment.board_date }}</p>
-                        </div>
-                        <div class="panel-body">
-                            <!-- 显示富文本内容 -->
-                            <div class="content">
-                                {{ comment.content|safe }}
+            {% if comments %}
+                {% for comment in comments %}
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <!-- 用户名跳转信息页 -->
+                            <div class="panel-heading">
+                                <h4>
+                                    {% if comment.username %}
+                                        <a href="{% url 'public_user_info' comment.username %}" 
+                                        class="user-link" 
+                                        title="查看用户信息">
+                                            {{ comment.username }}
+                                        </a>
+                                    {% else %}
+                                        匿名用户
+                                    {% endif %}
+                                </h4>
+                                <p>{{ comment.board_date }}</p>
+                            </div>
+                            <div class="panel-body">
+                                <!-- 显示富文本内容 -->
+                                <div class="content">
+                                    {{ comment.content|safe }}
+                                </div>
+                            </div>
+                            <div class="panel-footer">
+                                <p>点赞数: {{ comment.like_point }}</p>
+                                <button class="btn btn-primary btn-sm" onclick="likeComment({{ comment.id }})">
+                                    👍 点赞
+                                </button>
                             </div>
                         </div>
-                        <div class="panel-footer">
-                            <p>点赞数: {{ comment.like_point }}</p>
-                            <button class="btn btn-primary btn-sm" onclick="likeComment({{ comment.id }})">
-                                👍 点赞
-                            </button>
-                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <!-- 没有留言或没有搜索结果 -->
+                <div class="col-md-12">
+                    <div class="no-results">
+                        <i class="far fa-comment-dots"></i>
+                        <h4>
+                            {% if search_query %}
+                                没有找到相关留言
+                            {% else %}
+                                暂无留言
+                            {% endif %}
+                        </h4>
+                        <p>
+                            {% if search_query %}
+                                尝试使用其他关键词搜索
+                            {% else %}
+                                成为第一个留言的人吧！
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
-            {% endfor %}
+            {% endif %}
         </div>
 
 
@@ -167,56 +244,60 @@
             });
         </script>
         
-        <!-- 分页按钮（页码版） -->
-        <!-- <div class="pagination">
-            <span class="step-links">
-                {% if comments.has_previous %}
-                    <a href="?page=1&sort={{ current_sort }}">&laquo; 第一页</a>
-                    <a href="?page={{ comments.previous_page_number }}&sort={{ current_sort }}">上一页</a>
-                {% endif %}
+        <!-- 分页 -->
+        {% if comments.paginator %}
+            <!-- 普通分页（用于搜索结果） -->
+            <div class="pagination">
+                <span class="step-links">
+                    {% if comments.has_previous %}
+                        <a href="?sort={{ current_sort }}&q={{ search_query }}&page=1">&laquo; 第一页</a>
+                        <a href="?sort={{ current_sort }}&q={{ search_query }}&page={{ comments.previous_page_number }}">上一页</a>
+                    {% endif %}
 
-                <span class="current">
-                    第 {{ comments.number }} 页，共 {{ comments.paginator.num_pages }} 页
+                    <span class="current">
+                        第 {{ comments.number }} 页，共 {{ comments.paginator.num_pages }} 页
+                    </span>
+
+                    {% if comments.has_next %}
+                        <a href="?sort={{ current_sort }}&q={{ search_query }}&page={{ comments.next_page_number }}">下一页</a>
+                        <a href="?sort={{ current_sort }}&q={{ search_query }}&page={{ comments.paginator.num_pages }}">最后一页 &raquo;</a>
+                    {% endif %}
                 </span>
-
-                {% if comments.has_next %}
-                    <a href="?page={{ comments.next_page_number }}&sort={{ current_sort }}">下一页</a>
-                    <a href="?page={{ comments.paginator.num_pages }}&sort={{ current_sort }}">最后一页 &raquo;</a>
-                {% endif %}
-            </span>
-        </div> -->
-        <!-- 分页按钮（游标版） -->
-        <div class="pagination-section mt-4">
-            <!-- 分页按钮 -->
-            <div class="pagination-buttons d-flex justify-content-between">
-                <!-- 上一页 -->
-                <div>
-                    {% if pagination.has_prev %}
-                        <a href="?sort={{ current_sort }}&cursor={{ pagination.prev_cursor }}&direction=prev" 
-                           class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-left"></i> 上一页
-                        </a>
-                    {% else %}
-                        <button class="btn btn-outline-secondary pagination-disabled" disabled>
-                            <i class="fas fa-arrow-left"></i> 上一页
-                        </button>
-                    {% endif %}
-                </div>
-                
-                <!-- 下一页 -->
-                <div>
-                    {% if pagination.has_next %}
-                        <a href="?sort={{ current_sort }}&cursor={{ pagination.next_cursor }}&direction=next" 
-                           class="btn btn-primary">
-                            下一页 <i class="fas fa-arrow-right"></i>
-                        </a>
-                    {% else %}
-                        <button class="btn btn-secondary pagination-disabled" disabled>
-                            下一页 <i class="fas fa-arrow-right"></i>
-                        </button>
-                    {% endif %}
+            </div>
+        {% else %}
+            <!-- 游标分页（用于常规浏览） -->
+            <div class="pagination-section mt-4">
+                <div class="pagination-buttons d-flex justify-content-between">
+                    <!-- 上一页 -->
+                    <div>
+                        {% if pagination.has_prev %}
+                            <a href="?sort={{ current_sort }}&cursor={{ pagination.prev_cursor }}&direction=prev" 
+                               class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left"></i> 上一页
+                            </a>
+                        {% else %}
+                            <button class="btn btn-outline-secondary" disabled>
+                                <i class="fas fa-arrow-left"></i> 上一页
+                            </button>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 下一页 -->
+                    <div>
+                        {% if pagination.has_next %}
+                            <a href="?sort={{ current_sort }}&cursor={{ pagination.next_cursor }}&direction=next" 
+                               class="btn btn-primary">
+                                下一页 <i class="fas fa-arrow-right"></i>
+                            </a>
+                        {% else %}
+                            <button class="btn btn-secondary" disabled>
+                                下一页 <i class="fas fa-arrow-right"></i>
+                            </button>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+        {% endif %}
     </div>
     
     <!-- Bootstrap 的 JS 文件 -->
